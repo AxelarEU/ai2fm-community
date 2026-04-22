@@ -1,0 +1,45 @@
+name: Bug Report
+description: Report a compilation error, missing script step, or IDE bug
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us stress-test the `ai2fm` compiler! Please provide as much detail as possible so we can issue a hotfix.
+  - type: input
+    id: fm_version
+    attributes:
+      label: FileMaker Version
+      placeholder: e.g., FileMaker Pro 21.0.1
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating System & Editor
+      placeholder: e.g., macOS Sonoma / VS Code 1.88
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What exactly happened? (e.g., "Insert Text step fails to compile back to the clipboard")
+    validations:
+      required: true
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Failing Code Snippet (XML or .fmscript)
+      description: Paste the exact XML or pseudo-code snippet that tripped up the compiler.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: false
