@@ -1,4 +1,4 @@
-# ai2fm-community
+## ai2fm-community
 # ai2fm — Low-Latency Vibe Coding for FileMaker 🚀
 
 Welcome to the official community and issue tracker for **ai2fm**! 
@@ -78,8 +78,8 @@ The XSLT transform runs server-side, but payloads move over TLS, are processed e
 1. Download the latest `.vsix` extension file from [ai2fm.com](https://ai2fm.com/).
 2. Open your preferred editor (VS Code, Cursor, Windsurf, etc.).
 3. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac) and run: **`Extensions: Install from VSIX…`**
-4. Select the unzipped `fm-clipboard-2.33.0.vsix` file.
-5. Run **`FM Clipboard: Enter License Key`** to activate your 21-day trial or Professional seat.
+4. Select the unzipped `fm-clipboard-2.xx.0.vsix` file.
+5. Run **`FM Clipboard: Enter License Key`** to activate your 21-day Free or Professional seat.
 
 ---
 
