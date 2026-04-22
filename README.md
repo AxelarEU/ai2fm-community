@@ -1,8 +1,8 @@
 ## ai2fm-community
 # ai2fm — Low-Latency Vibe Coding for FileMaker 🚀
-
+![FileMaker WebDirect Rich Text Editor](images/ai2fm1.png)
 Welcome to the official community and issue tracker for **ai2fm**! 
-![FileMaker WebDirect Rich Text Editor](images/WebDirectRichTextEditor.png)
+
 [ai2fm](https://ai2fm.com/) is a VS Code extension that bridges the gap between FileMaker's strict XML clipboard format and modern AI code generation. It turns any VS Code-compatible editor into a full FileMaker IDE and provides a lossless, bidirectional translation pipeline so you can easily refactor, document, and extend your FileMaker scripts using plain text and AI agents (Claude, Codex, Gemini, Copilot, Local LLMs).
 
 ---
