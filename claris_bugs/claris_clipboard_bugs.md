@@ -250,12 +250,10 @@ FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step:
 
 ---
 
-## Independent verification
+## Community workaround
 
-You do not have to take our word for these bugs, and you do not need ai2fm to work around them. Takahata-san ([@stbison](https://github.com/stbison)) independently documented the same set of FileMaker 2026 clipboard bugs and published a manual workaround strategy — a bridge for anyone not using ai2fm:
+Takahata-san ([@stbison](https://github.com/stbison)) took the time to work through these same FileMaker 2026 clipboard bugs and write up a manual workaround — a practical option for anyone not using ai2fm. Worth a read, and our thanks for the effort:
 
 - [Silent-drop bugs in FileMaker 2026 — workaround strategy](https://gist.github.com/stbison/1d9b46ec906c600fc3c02d0746f95078)
-
-That an independent developer reproduced and catalogued the same defects is the strongest confirmation we can offer that they are real.
 
 ---
