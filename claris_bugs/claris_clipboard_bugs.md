@@ -250,6 +250,84 @@ FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step:
 
 ---
 
+## Set Data File Position (step 195) — the New position value is dropped on copy in 2026
+
+**The bug.** FileMaker **2026** drops the **New position** value (the byte offset to seek to) from the clipboard when you copy a Set Data File Position step. The value is fine in your file and fine in the Script Workspace — it is lost only in the clipboard, at the moment of copy. FileMaker **2025** copies the same step correctly. Because the loss is in the clipboard, it travels with it: paste the 2026-copied step back into FileMaker — 2026 **or** 2025 — and the New position is gone in both.
+
+### The files
+
+Open **`Set_Data_File_Position_2026.fmp12`** in FileMaker 2026 and **`Set_Data_File_Position_2025.fmp12`** in FileMaker 2025. Each holds the same three steps — a New position given as a variable (`$thePosition`), as a literal (`"thePosition"`), and as a field (`myTable::myNumber`). Copy them in each version and compare.
+
+### What FileMaker gives us
+
+Copy the three steps in **FileMaker 2025** → `Source_2025.xml`. Every step carries its `<position>`:
+
+```xml
+  <Step enable="True" id="195" name="Set Data File Position">
+    <Calculation><![CDATA[myTable::myField]]></Calculation>
+    <position>
+      <Calculation><![CDATA[$thePosition]]></Calculation>
+    </position>
+  </Step>
+```
+
+Copy the same three steps in **FileMaker 2026** → `Source_2026.xml`. The `<position>` element is gone from every one — only the File ID survives:
+
+```xml
+  <Step enable="True" id="195" name="Set Data File Position">
+    <DisableStepCollapsed state="False"/>
+    <Calculation><![CDATA[myTable::myField]]></Calculation>
+  </Step>
+```
+
+Same step, same value in the file — but the 2026 clipboard no longer contains the New position. That absence **is the bug**, and it is why pasting the 2026 clipboard into either version produces a step with New position blank.
+
+### What ai2fm does with the 2025 clipboard
+
+ai2fm reads `Source_2025.xml` and produces `Result_2025.fmscript`, every value intact:
+
+```fmscript
+Set Data File Position [ File ID: myTable::myField ; New position: $thePosition ]
+Set Data File Position [ File ID: myTable::myField ; New position: "thePosition" ]
+Set Data File Position [ File ID: myTable::myField ; New position: myTable::myNumber ]
+```
+
+### What ai2fm does with the 2026 clipboard — it flags the loss
+
+The 2026 clipboard has no New position to read, so ai2fm cannot invent one. What it does instead is refuse to let the loss pass silently: it marks every affected step with a warning (`Result_2026.fmscript`):
+
+```fmscript
+# ⚠️ Warning: check the New position value — FileMaker 2026 may have dropped it on copy; re-enter it here if it was set.
+Set Data File Position [ File ID: myTable::myField ; New position:  ]
+# ⚠️ Warning: check the New position value — FileMaker 2026 may have dropped it on copy; re-enter it here if it was set.
+Set Data File Position [ File ID: myTable::myField ; New position:  ]
+# ⚠️ Warning: check the New position value — FileMaker 2026 may have dropped it on copy; re-enter it here if it was set.
+Set Data File Position [ File ID: myTable::myField ; New position:  ]
+```
+
+Without ai2fm the empty New position is indistinguishable from a step that never had one — FileMaker gives no sign anything was lost. The warning turns a silent drop into a visible one.
+
+### Recovery — re-enter it, and ai2fm rebuilds it
+
+Type the New position back into the flagged line and convert it with ai2fm. It rebuilds the `<position>` element FileMaker dropped (`Result_2025.xml`), and the clipboard pastes back into FileMaker with the value restored:
+
+```xml
+  <Step enable="True" id="195" name="Set Data File Position">
+    <Calculation><![CDATA[myTable::myField]]></Calculation>
+    <position>
+      <Calculation><![CDATA[$thePosition]]></Calculation>
+    </position>
+  </Step>
+```
+
+### The point
+
+FileMaker 2026 loses the New position the moment you copy the step, in a way nothing on screen reveals. ai2fm cannot recover a value that never reached the clipboard — but it makes the loss **visible**, flags exactly which steps are affected, and rebuilds the value the instant you supply it. A silent drop becomes a caught one.
+
+*Reported to Claris — [Bug report: FileMaker Pro 2026 drops the New position value from Set Data File Position on copy to the clipboard](https://community.claris.com/en/s/question/0D5Vy00002veMl7KAE/bug-report-filemaker-pro-2026-drops-the-new-position-value-from-set-data-file-position-on-copy-to-the-clipboard).*
+
+---
+
 ## Community workaround
 
 Takahata-san ([@stbison](https://github.com/stbison)) took the time to work through these same FileMaker 2026 clipboard bugs and write up a manual workaround — a practical option for anyone not using ai2fm. Worth a read, and our thanks for the effort:
