@@ -17,6 +17,12 @@ If you run into an edge case, a dropped variable, or a compilation error, we wan
 * **Found a Bug?** [Open a Bug Report](../../issues/new?template=bug_report.yml) and include your failing `.fmscript` or XML snippet.
 * **Have an Idea?** [Submit a Feature Request](../../issues/new?template=feature_request.yml) for new IDE enhancements, autocomplete templates, or script step additions.
 
+### 📄 Verified Claris Clipboard Bugs
+
+During the R&D for ai2fm we found, documented, and reported to Claris a set of bugs in FileMaker's clipboard serialisation — dropped values, renamed XML tags, and structure changes that silently break a step when it is copied between FileMaker 2025 and 2026. Each one is backed by real captured files you can reproduce yourself, alongside how ai2fm reads and bridges it.
+
+➡️ **[Read the Claris Clipboard Bugs catalogue](claris_bugs/claris_clipboard_bugs.md)**
+
 ---
 
 ## ⚡ The Workflow (Vibe Coding)
