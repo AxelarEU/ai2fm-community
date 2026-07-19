@@ -501,6 +501,25 @@ One honest caveat: a step copied out of a 2025 file gives no sign of trouble, be
 
 ---
 
+## The bugs we found and did NOT report
+
+Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. Two of the bugs we hit are real — FileMaker genuinely does the wrong thing — but they cannot harm a user. We are documenting them here rather than filing them, and it is worth explaining why.
+
+**FileMaker 2025's clipboard leaks 2026 features it does not understand.** Open a file authored in FileMaker 2026 with FileMaker 2025, copy a step, and in some cases the 2026-only data rides along into the clipboard — even though 2025 has no idea what it is. We saw it on **Set Zoom Level (step 97)**, where 2026's Custom zoom calculation survives into the 2025 copy, and on **Re-Login (step 138)**, where a 2026 file reference does the same.
+
+The reason it happens is structural, and it explains why some steps leak and others do not:
+
+- When the 2026 feature is a **new value inside an element 2025 already knows** — Set Zoom Level's Custom is a new option on the existing `<Zoom>` element — the data passes through 2025's parser as an opaque string and lands in the clipboard.
+- When the 2026 feature is a **brand-new element name** — Show Custom Dialog's window size, Save a Copy as XML's new options — 2025 has no slot for it, correctly drops it, and the clipboard is clean.
+
+So FileMaker 2025 is capable of doing this right, and does, most of the time. The leak is inconsistent with its own correct behaviour, which is what makes it a bug rather than a design choice.
+
+**Why we are not filing it: nobody is affected.** A 2025 user never sees the leaked data — the option does not exist in their version, the interface shows nothing, and pasting the polluted clipboard back into 2025 does nothing at all. The data is not lost either, because it is still in the file: open that same file in 2026 again and the feature is intact. The only software that ever notices is a tool like ai2fm, which reads the clipboard directly and would otherwise show a 2025 developer a control their FileMaker does not have. We handle it on our side and move on.
+
+That is the distinction worth holding on to. Everything else on this page **destroys or corrupts something a developer deliberately set** — a template name, a credential, an operation, a read size. This one shuffles bytes nobody will ever look at. Both are bugs; only one is worth a report.
+
+---
+
 ## Community workaround
 
 Takahata-san ([@stbison](https://github.com/stbison)) took the time to work through these same FileMaker 2026 clipboard bugs and write up a manual workaround — a practical option for anyone not using ai2fm. Worth a read, and our thanks for the effort:
