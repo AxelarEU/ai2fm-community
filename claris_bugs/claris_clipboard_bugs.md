@@ -417,6 +417,90 @@ FileMaker 2026 keeps the Add-Data Response Target for the synchronous sources an
 
 ---
 
+## Read from Data File (step 193) — the Amount is dropped on copy, and in 2025 two very different scripts look identical
+
+**The bug.** In FileMaker **2026**, copying a Read from Data File step **drops the Amount (bytes)** value — the number of bytes to read — from the clipboard. The step in your file still holds it. Only the copy loses it. What makes this one worth reading twice is what happens next in FileMaker 2025: depending on how the step got there, the Amount is either **hidden but alive** or **gone for good** — and the two are indistinguishable on screen.
+
+### The files
+
+Open **`Read_from_Data_File_2026.fmp12`** in FileMaker 2026. It holds six Read from Data File steps: three File ID forms (a field, a `$variable`, a literal) across the three Read-as encodings (Bytes, UTF-16, UTF-8), each with an Amount set. Copy all six.
+
+### What FileMaker gives us
+
+Copy the steps in **FileMaker 2026** → `Source_2026.xml`. Every step arrives without its Amount — there is no `<Count>` element anywhere in the file:
+
+```xml
+  <Step enable="True" id="193" name="Read from Data File">
+    <DisableStepCollapsed state="False"/>
+    <DataSourceType value="3"/>
+    <Calculation><![CDATA[myTable::TypeID]]></Calculation>
+  </Step>
+```
+
+A correct clipboard carries the value like this — the shape FileMaker 2025 writes, and the shape ai2fm rebuilds:
+
+```xml
+    <Count>
+      <Calculation><![CDATA[10]]></Calculation>
+    </Count>
+```
+
+### What ai2fm does — it flags every affected step
+
+ai2fm reads `Source_2026.xml` and produces `Result_2026.fmscript`. All six steps come through with the Amount blank, and each one is marked:
+
+```fmscript
+# ⚠️ Warning: the Amount (bytes) value is not in this copy — FileMaker left it out when the step was copied, even though the step still holds it.
+# Re-enter the Amount here and paste the step back into FileMaker: that repairs the step for good — copy it again afterwards and the value stays.
+Read from Data File [ File ID: myTable::TypeID ; Amount (bytes):  ; Target:  ; Read as: Bytes ]
+```
+
+### Recovery — re-enter it, and ai2fm repairs the step permanently
+
+Type the Amounts back onto the flagged lines (`Corrected_at_IDE_2026.fmscript`):
+
+```fmscript
+Read from Data File [ File ID: myTable::TypeID ; Amount (bytes): 10 ; Target:  ; Read as: Bytes ]
+Read from Data File [ File ID: myTable::TypeID ; Amount (bytes): $theAmount ; Target: myTable::myField ; Read as: Bytes ]
+```
+
+Convert that with ai2fm and it rebuilds the `<Count>` element FileMaker left out, on all six steps (`Corrected_at_IDE_2026.xml`):
+
+```xml
+    <Count>
+      <Calculation><![CDATA[$theAmount]]></Calculation>
+    </Count>
+```
+
+**Paste that back into FileMaker and the step is repaired for good** — copy it again afterwards and the Amount comes with it. This is the one bug on this page where ai2fm does not merely surface the loss: it puts the value back into your solution permanently.
+
+### The part that should worry you: in 2025, two different scripts look the same
+
+Take that same 2026 file to FileMaker **2025**, by the two routes a developer would actually use, and the Script Workspace renders both the same way — no Amount shown at all:
+
+```fmscript
+Read from Data File [File ID:myTable::TypeID; Target:; Read as:Bytes]
+```
+
+They are not the same. Open the step's gear, click **Amount → Specify…**, and:
+
+- **The file simply opened in 2025** — the Specify dialog shows **`10`**. The value is intact and *will execute*. It is only the step rendering that hides it.
+- **The step copy-pasted from 2026** — the Specify dialog is **empty**. The value is gone.
+
+One script silently enforces a read limit; the other silently has none; and nothing on screen tells them apart. That, more than the dropped element, is the real hazard here.
+
+### Three ways to get the Amount back
+
+- **Author in 2025 to begin with.** FileMaker 2025 writes the Amount into the clipboard correctly, so the problem never starts.
+- **If the file was opened in 2025:** open the Amount gear on the step and save. The value is already there — saving makes FileMaker write it out properly again. No tooling needed. (This works *only* on this route, because the value survived; there is nothing to reveal on a pasted step.)
+- **In any version, via ai2fm:** re-enter the Amount in the editor and paste the step back. ai2fm rebuilds the element and the repair sticks in 2025 and 2026 alike.
+
+One honest caveat: a step copied out of a 2025 file gives no sign of trouble, because in 2025 an empty Amount is a perfectly normal thing to have — ai2fm cannot tell "never set" from "lost on the way here". If a 2025 file began life in 2026, check the Amount gear on these steps before trusting a blank.
+
+*Reported to Claris — [Bug Report: FileMaker Pro 2026 drops the "Amount (bytes)" value from Read from Data File on copy to the clipboard](https://community.claris.com/en/s/question/0D5Vy00002veHlvKAE/bug-report-filemaker-pro-2026-drops-the-amount-bytes-value-from-read-from-data-file-on-copy-to-the-clipboard).*
+
+---
+
 ## Community workaround
 
 Takahata-san ([@stbison](https://github.com/stbison)) took the time to work through these same FileMaker 2026 clipboard bugs and write up a manual workaround — a practical option for anyone not using ai2fm. Worth a read, and our thanks for the effort:
