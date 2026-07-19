@@ -328,6 +328,80 @@ FileMaker 2026 loses the New position the moment you copy the step, in a way not
 
 ---
 
+## Perform RAG Action — Add Data (step 219) — the Response Target is dropped, but only for the *(Async)* sources
+
+**The bug.** In FileMaker **2026**, a Perform RAG Action step with **Action: Add Data** can store a **Response Target** — the field or variable that receives the document ID the RAG server returns. Copying that step keeps the Response Target when the source is **From Container** or **From File**, but **drops it when the source is the *(Async)* variant** (From Container (Async) / From File (Async)). Same step, same option — the loss depends entirely on which data source you picked. This is a 2026-only step, so there is no earlier version to compare against; the bug is FileMaker 2026 losing part of its own new feature on copy.
+
+### The files
+
+Open **`Perform_RAG_Action_2026.fmp12`** in FileMaker 2026. It holds four Add-Data steps, each with a Response Target set: two using **From Container** (labelled *"This works"*) and two using **From Container (Async)** (labelled *"This fails at copy-paste"*). Copy all four and inspect the clipboard.
+
+### What FileMaker gives us
+
+Copy the steps → `Source_2026.xml`. The Response Target is stored as `<Field type="AddDataResponse">` inside `<RAGSpace>`. For the two **From Container** steps it is present:
+
+```xml
+      <DataSource>FromContainer</DataSource>
+      <Field type="AddDataResponse">$theResponse</Field>
+```
+
+```xml
+      <DataSource>FromContainer</DataSource>
+      <Field type="AddDataResponse" table="myTable" id="19" name="TypeID"/>
+```
+
+For the two **From Container (Async)** steps, the `<DataSource>` is there but the `AddDataResponse` field is simply gone — FileMaker dropped it:
+
+```xml
+      <DataSource>FromContainerAsync</DataSource>
+      <RAGSpaceTokensPerTextChunk>
+        <Calculation><![CDATA[$tokens]]></Calculation>
+      </RAGSpaceTokensPerTextChunk>
+```
+
+The difference between the two blocks — same option, present for one source, absent for the other — **is the bug.**
+
+### What ai2fm does — keep what's there, flag what's gone
+
+ai2fm reads `Source_2026.xml` and produces `Result_2026.fmscript`. The **From Container** steps come through complete — Response Target and all:
+
+```fmscript
+Perform RAG Action [ RAG Account Name: "theAccount" ; Space ID: "theID" ; Action: Add Data ; RAG Data: From Container ; Container Field: myTable::myContainer ; Detect vertical text ; Tokens per Text Chunk: $tokens ; Response Target: $theResponse ]
+Perform RAG Action [ RAG Account Name: "theAccount" ; Space ID: "theID" ; Action: Add Data ; RAG Data: From Container ; Container Field: myTable::myContainer ; Detect vertical text ; Tokens per Text Chunk: $tokens ; Response Target: myTable::TypeID ]
+```
+
+The **From Container (Async)** steps have no Response Target to read, so ai2fm flags each one instead of letting the loss pass unseen:
+
+```fmscript
+# ⚠️ Warning: for Action: Add Data with an (Async) source, FileMaker 2026 drops the Response Target (the returned document ID) from the clipboard on copy — an FM2026 platform defect (reported to Claris). Re-enter it here if one was set and ai2fm will rebuild it on the way back into FileMaker.
+Perform RAG Action [ RAG Account Name: "theAccount" ; Space ID: "theID" ; Action: Add Data ; RAG Data: From Container (Async) ; Container Field: myTable::myContainer ; Detect vertical text ; Tokens per Text Chunk: $tokens ]
+```
+
+This is the important half of the fix: ai2fm does **not** blindly drop the Response Target for every Add-Data step. It keeps the value FileMaker kept, and warns only on the *(Async)* steps where FileMaker actually lost it.
+
+### Recovery — re-enter it, and ai2fm rebuilds it
+
+Type the Response Target back onto the flagged *(Async)* line and convert with ai2fm. It rebuilds the `<Field type="AddDataResponse">` element FileMaker dropped, in the right place inside `<RAGSpace>` (`Source_Corrected_at_IDE_2026.xml`):
+
+```xml
+      <DataSource>FromContainerAsync</DataSource>
+      <Field type="AddDataResponse">$theResponse</Field>
+```
+
+Read that healed clipboard back and every step — sync and async — carries its Response Target, with no warning left:
+
+```fmscript
+Perform RAG Action [ RAG Account Name: "theAccount" ; Space ID: "theID" ; Action: Add Data ; RAG Data: From Container (Async) ; Container Field: myTable::myContainer ; Detect vertical text ; Tokens per Text Chunk: $tokens ; Response Target: $theResponse ]
+```
+
+### The point
+
+FileMaker 2026 keeps the Add-Data Response Target for the synchronous sources and silently drops it for the *(Async)* ones. ai2fm mirrors the truth exactly: it preserves the value where FileMaker preserves it, flags the precise steps where FileMaker lost it, and rebuilds it the moment you re-enter it. Nothing correct is thrown away, and nothing lost is left silent.
+
+*Reported to Claris — [Data loss bug: "Response Target" is removed when copying/pasting Perform RAG Action (Add Data) script steps in Script Workspace](https://community.claris.com/en/s/question/0D5Vy00002p5t84KAA/data-loss-bug-response-target-is-removed-when-copyingpasting-perform-rag-action-add-data-script-steps-in-script-workspace).*
+
+---
+
 ## Community workaround
 
 Takahata-san ([@stbison](https://github.com/stbison)) took the time to work through these same FileMaker 2026 clipboard bugs and write up a manual workaround — a practical option for anyone not using ai2fm. Worth a read, and our thanks for the effort:
