@@ -21,7 +21,7 @@ Open the file, copy the same step in your own FileMaker, and you will get the sa
 
 ---
 
-## Perform Find by Natural Language (step 221) — the Prompt Template Name is dropped in 2025
+## $\textcolor{red}{\text{Perform Find by Natural Language (step 221) -- the Prompt Template Name is dropped in 2025}}$
 
 **The bug.** In FileMaker **2025**, copying a Perform Find by Natural Language step **drops the Prompt Template Name** from the clipboard. FileMaker **2026** fixed it. So a step copied in 2025 arrives with the Template Name already gone — before any tool sees it.
 
@@ -109,7 +109,7 @@ The bug is FileMaker's; the loss is real; and ai2fm's job is to make the loss **
 
 ---
 
-## Configure AI Account (step 212) — the XML tag was renamed, so the two versions can't share a step
+## $\textcolor{red}{\text{Configure AI Account (step 212) -- the XML tag was renamed, so the two versions can't share a step}}$
 
 **The bug.** FileMaker 2025 misspelled its own element names. FileMaker 2026 corrected the spelling — and gave neither version a fallback for the other. The result is a wall in *both* directions: a Configure AI Account step copied in one version, pasted into the other, comes in with **Account Name, Endpoint and API key silently blanked.** The paste appears to succeed; your credentials are just gone.
 
@@ -184,7 +184,7 @@ FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in eithe
 
 ---
 
-## Configure Machine Learning Model (step 202) — the structure changed, and a bad paste becomes a *different* command
+## $\textcolor{red}{\text{Configure Machine Learning Model (step 202) -- the structure changed, and a bad paste becomes a different command}}$
 
 **The bug.** FileMaker 2025 and FileMaker 2026 write this step with different XML *structures*, and neither version's importer accepts the other's. Copy the step across versions and it does not error — it pastes a step that is quietly **wrong in two ways**: the **From** source field is dropped, and the **Operation** resets to `Unload`. A `Vision` model step becomes an `Unload` step. This is the most dangerous failure on this page, because the result looks like a perfectly valid command — just not the one you had.
 
@@ -250,7 +250,7 @@ FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step:
 
 ---
 
-## Set Data File Position (step 195) — the New position value is dropped on copy in 2026
+## $\textcolor{red}{\text{Set Data File Position (step 195) -- the New position value is dropped on copy in 2026}}$
 
 **The bug.** FileMaker **2026** drops the **New position** value (the byte offset to seek to) from the clipboard when you copy a Set Data File Position step. The value is fine in your file and fine in the Script Workspace — it is lost only in the clipboard, at the moment of copy. FileMaker **2025** copies the same step correctly. Because the loss is in the clipboard, it travels with it: paste the 2026-copied step back into FileMaker — 2026 **or** 2025 — and the New position is gone in both.
 
@@ -328,7 +328,7 @@ FileMaker 2026 loses the New position the moment you copy the step, in a way not
 
 ---
 
-## Perform RAG Action — Add Data (step 219) — the Response Target is dropped, but only for the *(Async)* sources
+## $\textcolor{red}{\text{Perform RAG Action -- Add Data (step 219) -- the Response Target is dropped, but only for the (Async) sources}}$
 
 **The bug.** In FileMaker **2026**, a Perform RAG Action step with **Action: Add Data** can store a **Response Target** — the field or variable that receives the document ID the RAG server returns. Copying that step keeps the Response Target when the source is **From Container** or **From File**, but **drops it when the source is the *(Async)* variant** (From Container (Async) / From File (Async)). Same step, same option — the loss depends entirely on which data source you picked. This is a 2026-only step, so there is no earlier version to compare against; the bug is FileMaker 2026 losing part of its own new feature on copy.
 
