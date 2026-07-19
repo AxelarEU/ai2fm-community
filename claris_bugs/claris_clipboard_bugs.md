@@ -550,6 +550,58 @@ FileMaker writes Google as an absence and then reads that absence as OpenAI. The
 
 ---
 
+## Refresh Portal (step 180) — the clipboard invents a parameter the step does not have
+
+**The bug.** Every other entry on this page is about FileMaker losing something. This one is the opposite: the clipboard **adds** something. When a Refresh Portal step has an Object Name, the copied XML carries a **`Repetition` parameter that the step does not possess** — undocumented, not settable, not in the step's own SaXML, and discarded by FileMaker's own paste. Confirmed in both FileMaker 2025 and 2026.
+
+### What FileMaker gives us
+
+Copy the steps → `Source_2026.xml`. Each Refresh Portal step with an Object Name looks like this:
+
+```xml
+  <Step enable="True" id="180" name="Refresh Portal">
+    <DisableStepCollapsed state="False"/>
+    <ObjectName>
+      <Calculation><![CDATA["thePortal"]]></Calculation>
+    </ObjectName>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+  </Step>
+```
+
+In our capture, **six of the seven steps carry `<Repetition>`, and the value is `1` every time.** The one step without it is the one with no Object Name — which is the tell: the phantom appears as a side effect of filling in the Object Name, not as anything the developer set.
+
+### Five independent reasons it is not a real parameter
+
+- **It is not documented.** The Claris help page for Refresh Portal lists exactly one option: Object Name.
+- **It is not in the step's own SaXML.** FileMaker's canonical serialization of the same step reports `membercount="1"` with a single `<Parameter type="Object">`. There is no Repetition member.
+- **It cannot be set.** The step's options panel has no repetition field. The value only materializes on its own.
+- **It never varies.** Every occurrence is `1`. No other value has ever been produced.
+- **FileMaker itself discards it.** Copy a Refresh Portal step and paste it, and the Repetition is gone. Insert a fresh Refresh Portal step and it is never created.
+
+Authored by nobody, documented nowhere, not a SaXML member, not settable, and not preserved by FileMaker's own copy and paste — and yet the clipboard emits it.
+
+### What ai2fm does — it drops the phantom
+
+We could faithfully reproduce what the clipboard says. We deliberately do not, because reproducing it would mean writing a parameter into your script that FileMaker will throw away the next time it reads it. Reading the clipboard above, ai2fm emits the step as it actually is:
+
+```fmscript
+Refresh Portal [ Object Name: "thePortal" ]
+Refresh Portal [ Object Name: $thePortal ]
+Refresh Portal [ Object Name: myTable::myField ]
+```
+
+No Repetition — in enabled and disabled steps alike.
+
+### The point
+
+This is the one case on this page where being faithful to the clipboard would be the *wrong* answer. Two clipboards that differ only by the presence of `<Repetition>` describe exactly the same step, so a tool that copies the clipboard byte-for-byte reports spurious differences when you diff or version your scripts. We follow the documented step and its own SaXML, which agree with each other, and drop what neither of them contains.
+
+*Reported to Claris — [Bug Report: Refresh Portal emits a phantom "Repetition" parameter](https://community.claris.com/en/s/question/0D5Vy00002ulmO5KAI/bug-report-refresh-portal-emits-a-phantom-repetition-parameter).*
+
+---
+
 ## The bugs we found and did NOT report
 
 Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. Two of the bugs we hit are real — FileMaker genuinely does the wrong thing — but they cannot harm a user. We are documenting them here rather than filing them, and it is worth explaining why.
