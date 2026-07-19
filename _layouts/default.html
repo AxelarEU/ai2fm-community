@@ -21,6 +21,9 @@
     --tok-var:    #0f8a80;
     --tok-tag:    #235d97;
     --tok-attr:   #7a4bc0;
+    --tok-label:  #6f42c1;   /* Label: keys */
+    --tok-field:  #0f8a80;   /* table::field */
+    --tok-warn:   #b8860b;   /* # ⚠️ warning comments */
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -28,6 +31,7 @@
       --brand:#3fb950; --bug:#ff7b72; --code-bg:#161b22; --code-brd:#30363d;
       --tok-comment:#7ee787; --tok-string:#ffa657; --tok-step:#79c0ff;
       --tok-var:#56d4c8; --tok-tag:#79c0ff; --tok-attr:#d2a8ff;
+      --tok-label:#d2a8ff; --tok-field:#56d4c8; --tok-warn:#e3b341;
     }
   }
   * { box-sizing: border-box; }
@@ -101,6 +105,17 @@
   .highlight .nv, .highlight .vg, .highlight .vi { color: var(--tok-var); }
   .highlight .k, .highlight .kd, .highlight .nf { color: var(--tok-step); }
 
+  /* .fmscript tokens — Rouge has no lexer for it, so it is highlighted client-side
+     (see the script at the end of the body). Scope names mirror the VS Code grammar. */
+  .fms-comment { color: var(--tok-comment); font-style: italic; }
+  .fms-warn    { color: var(--tok-warn); font-style: normal; font-weight: 600; }
+  .fms-step    { color: var(--tok-step); font-weight: 600; }
+  .fms-label   { color: var(--tok-label); }
+  .fms-string  { color: var(--tok-string); }
+  .fms-var     { color: var(--tok-var); }
+  .fms-field   { color: var(--tok-field); }
+  .fms-punct   { color: var(--ink-soft); }
+
   blockquote {
     margin: 0 0 1.2em; padding: .1em 0 .1em 1.1em;
     border-left: 3px solid var(--rule); color: var(--ink-soft);
@@ -119,5 +134,66 @@
   <a href="https://ai2fm.com/">ai2fm.com</a>
 </footer>
 </div>
+
+<script>
+/* ------------------------------------------------------------------
+   .fmscript syntax highlighting.
+
+   Rouge (the highlighter GitHub Pages runs) has no lexer for .fmscript
+   and Pages will not run custom plugins, so those blocks arrive as plain
+   text. This tokenises them in the browser using the same rules as the
+   ai2fm VS Code grammar (scope source.filemaker).
+
+   Order matters: comments win over everything (a '#' line is a comment
+   even if it contains quotes), then strings, then the rest. Everything is
+   HTML-escaped BEFORE tokenising so code can never inject markup.
+   ------------------------------------------------------------------ */
+(function () {
+  var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+  function esc(s) { return s.replace(/[&<>]/g, function (c) { return ESC[c]; }); }
+
+  function highlightLine(raw) {
+    // A comment line ('#' possibly indented) is a single token, whole line.
+    var lead = raw.match(/^(\s*)#/);
+    if (lead) {
+      var cls = /⚠|Warning:/.test(raw) ? 'fms-warn' : 'fms-comment';
+      return lead[1] + '<span class="' + cls + '">' + esc(raw.slice(lead[1].length)) + '</span>';
+    }
+
+    var out = '';
+    var i = 0;
+
+    // Step name = everything before the first '[' on the line.
+    var br = raw.indexOf('[');
+    if (br > 0 && /^[A-Za-z]/.test(raw)) {
+      out += '<span class="fms-step">' + esc(raw.slice(0, br).replace(/\s+$/, '')) + '</span>';
+      out += esc(raw.slice(br - (raw.slice(0, br).match(/\s*$/)[0].length), br));
+      i = br;
+    }
+
+    var rest = raw.slice(i);
+    // One pass, alternatives ordered by precedence.
+    var re = /("(?:[^"\\]|\\.)*")|(\$\$?[A-Za-z_][\w]*)|([A-Za-z_][\w ]*::[A-Za-z_][\w]*)|([A-Za-z][A-Za-z0-9 ]*?:)|([\[\];])/g;
+    var last = 0, m;
+    while ((m = re.exec(rest)) !== null) {
+      out += esc(rest.slice(last, m.index));
+      if (m[1])      out += '<span class="fms-string">' + esc(m[1]) + '</span>';
+      else if (m[2]) out += '<span class="fms-var">'    + esc(m[2]) + '</span>';
+      else if (m[3]) out += '<span class="fms-field">'  + esc(m[3]) + '</span>';
+      else if (m[4]) out += '<span class="fms-label">'  + esc(m[4]) + '</span>';
+      else if (m[5]) out += '<span class="fms-punct">'  + esc(m[5]) + '</span>';
+      last = re.lastIndex;
+    }
+    out += esc(rest.slice(last));
+    return out;
+  }
+
+  document.querySelectorAll('code.language-fmscript').forEach(function (el) {
+    // textContent = the raw source; never re-read innerHTML (would double-escape).
+    el.innerHTML = el.textContent.split('\n').map(highlightLine).join('\n');
+    el.classList.add('fms-highlighted');
+  });
+})();
+</script>
 </body>
 </html>
