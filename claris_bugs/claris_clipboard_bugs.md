@@ -1,4 +1,4 @@
-# FileMaker Clipboard Bugs — verified, with reproducible test files
+# $\Huge\textcolor{green}{\text{FileMaker Clipboard Bugs -- verified, with reproducible test files}}$
 
 *Published by ai2fm · companion to the v2.5 release · last updated 2026-07-18*
 
@@ -59,7 +59,7 @@ Now switch the **Target FileMaker Version to 2026** and copy the same step from 
 
 The difference between those two files **is the bug.**
 
-### What ai2fm does with the 2025 clipboard
+### $\textcolor{green}{\text{What ai2fm does with the 2025 clipboard}}$
 
 ai2fm reads `Source_2025.xml` and produces `Result_2025.fmscript`:
 
@@ -153,7 +153,7 @@ Configure AI Account [ Account Name:  ; Model Provider: Custom ; Endpoint:  ; AP
 
 The account name, endpoint and API key are gone — even though they are still sitting in the pasted clipboard's XML. FileMaker read the wrong tag and blanked the fields. This is the dangerous kind of failure: it looks like it worked.
 
-### What ai2fm does — it reads both spellings
+### $\textcolor{green}{\text{What ai2fm does -- it reads both spellings}}$
 
 Point ai2fm at either clipboard and you get the same, complete, correct script. From the 2025 clipboard (`Result_2025.fmscript`) and from the 2026 clipboard (`Result_2026.fmscript`) — **byte-for-byte identical**:
 
@@ -227,7 +227,7 @@ Configure Machine Learning Model [ Operation: Unload ; Name: "visionModel" ]
 
 Compare to what you had — `Operation: Vision` / `Operation: General`, each `From: myTable::myField`. After the cross-version paste, **every operation has collapsed to `Unload`** and the **`From` source is gone.** The failure is deterministic and it happens in **both** directions. A model step silently becomes an unload.
 
-### What ai2fm does — it reads both structures
+### $\textcolor{green}{\text{What ai2fm does -- it reads both structures}}$
 
 Point ai2fm at either clipboard and you get the same, complete, correct script. From the 2025 clipboard (`Result_2025.fmscript`) and from the 2026 clipboard (`Result_2026.fmscript`) — **byte-for-byte identical**:
 
@@ -282,7 +282,7 @@ Copy the same three steps in **FileMaker 2026** → `Source_2026.xml`. The `<pos
 
 Same step, same value in the file — but the 2026 clipboard no longer contains the New position. That absence **is the bug**, and it is why pasting the 2026 clipboard into either version produces a step with New position blank.
 
-### What ai2fm does with the 2025 clipboard
+### $\textcolor{green}{\text{What ai2fm does with the 2025 clipboard}}$
 
 ai2fm reads `Source_2025.xml` and produces `Result_2025.fmscript`, every value intact:
 
@@ -292,7 +292,7 @@ Set Data File Position [ File ID: myTable::myField ; New position: "thePosition"
 Set Data File Position [ File ID: myTable::myField ; New position: myTable::myNumber ]
 ```
 
-### What ai2fm does with the 2026 clipboard — it flags the loss
+### $\textcolor{green}{\text{What ai2fm does with the 2026 clipboard -- it flags the loss}}$
 
 The 2026 clipboard has no New position to read, so ai2fm cannot invent one. What it does instead is refuse to let the loss pass silently: it marks every affected step with a warning (`Result_2026.fmscript`):
 
@@ -307,7 +307,7 @@ Set Data File Position [ File ID: myTable::myField ; New position:  ]
 
 Without ai2fm the empty New position is indistinguishable from a step that never had one — FileMaker gives no sign anything was lost. The warning turns a silent drop into a visible one.
 
-### Recovery — re-enter it, and ai2fm rebuilds it
+### $\textcolor{green}{\text{Recovery -- re-enter it, and ai2fm rebuilds it}}$
 
 Type the New position back into the flagged line and convert it with ai2fm. It rebuilds the `<position>` element FileMaker dropped (`Result_2025.xml`), and the clipboard pastes back into FileMaker with the value restored:
 
@@ -361,7 +361,7 @@ For the two **From Container (Async)** steps, the `<DataSource>` is there but th
 
 The difference between the two blocks — same option, present for one source, absent for the other — **is the bug.**
 
-### What ai2fm does — keep what's there, flag what's gone
+### $\textcolor{green}{\text{What ai2fm does -- keep what's there, flag what's gone}}$
 
 ai2fm reads `Source_2026.xml` and produces `Result_2026.fmscript`. The **From Container** steps come through complete — Response Target and all:
 
@@ -379,7 +379,7 @@ Perform RAG Action [ RAG Account Name: "theAccount" ; Space ID: "theID" ; Action
 
 This is the important half of the fix: ai2fm does **not** blindly drop the Response Target for every Add-Data step. It keeps the value FileMaker kept, and warns only on the *(Async)* steps where FileMaker actually lost it.
 
-### Recovery — re-enter it, and ai2fm rebuilds it
+### $\textcolor{green}{\text{Recovery -- re-enter it, and ai2fm rebuilds it}}$
 
 Type the Response Target back onto the flagged *(Async)* line and convert with ai2fm. It rebuilds the `<Field type="AddDataResponse">` element FileMaker dropped, in the right place inside `<RAGSpace>` (`Source_Corrected_at_IDE_2026.xml`):
 
