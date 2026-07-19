@@ -314,7 +314,15 @@ Without ai2fm the empty New position is indistinguishable from a step that never
 
 ### Recovery — re-enter it, and ai2fm rebuilds it
 
-Type the New position back into the flagged line and convert it with ai2fm. It rebuilds the `<position>` element FileMaker dropped (`Result_2025.xml`), and the clipboard pastes back into FileMaker with the value restored:
+Type the New position back onto each flagged line — a variable, a literal, or a field, whichever it was. This is the whole repair, and it is done in the text you are already reading:
+
+```fmscript
+Set Data File Position [ File ID: myTable::myField ; New position: $thePosition ]
+Set Data File Position [ File ID: myTable::myField ; New position: "thePosition" ]
+Set Data File Position [ File ID: myTable::myField ; New position: myTable::myNumber ]
+```
+
+Convert that with ai2fm and it rebuilds the `<position>` element FileMaker dropped (`Result_2025.xml`) — the part you never have to look at, shown here only as proof the value really is back in the clipboard:
 
 ```xml
   <Step enable="True" id="195" name="Set Data File Position">
@@ -324,6 +332,8 @@ Type the New position back into the flagged line and convert it with ai2fm. It r
     </position>
   </Step>
 ```
+
+That clipboard pastes into FileMaker with the New position intact.
 
 ### The point
 
