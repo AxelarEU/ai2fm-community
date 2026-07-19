@@ -1,0 +1,13 @@
+title: ai2fm — FileMaker Clipboard Bugs
+description: Verified FileMaker clipboard serialisation bugs, with reproducible test files.
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: false
+include:
+  - claris_bugs
