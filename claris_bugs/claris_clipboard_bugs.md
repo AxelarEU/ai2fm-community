@@ -501,6 +501,55 @@ One honest caveat: a step copied out of a 2025 file gives no sign of trouble, be
 
 ---
 
+## Configure Prompt Template (step 226) — a Google step pastes back as OpenAI
+
+**The bug.** In FileMaker **2026**, a Configure Prompt Template step set to **Model Provider: Google** does not survive a copy and paste. The pasted step comes back as **OpenAI**. Every other provider — ChatGPT, Anthropic, Cohere, Custom — is preserved correctly. Only Google is affected, and the step then runs against a different AI provider than the one the developer chose.
+
+### The files
+
+Open **`Configure_Prompt_Template_2026.fmp12`** in FileMaker 2026. It holds Configure Prompt Template steps covering all five providers, in both enabled and disabled form. Copy them and inspect the clipboard.
+
+### What FileMaker gives us
+
+Copy the steps → `Source_2026.xml`. Four of the five providers serialize their value as you would expect:
+
+```xml
+      <ModelProvider>Anthropic</ModelProvider>
+```
+
+Google does not. It serializes as an **empty element** — the tag is there, the value is not:
+
+```xml
+      <ModelProvider/>
+```
+
+That is the whole bug, and everything follows from it. When FileMaker pastes this step back, it finds an empty provider, falls back to its default — **OpenAI** — and writes that in. The developer's choice is gone, replaced by a valid-looking setting that happens to be the wrong one. Nothing on screen reports a problem.
+
+### What ai2fm does — it reads the empty element as Google
+
+ai2fm knows that in this step an empty `<ModelProvider/>` **means Google**, because no other provider serializes empty. Reading the same clipboard, it produces `Result_2026.fmscript` with the provider intact:
+
+```fmscript
+Configure Prompt Template [ Template Name: "Name" ; Model Provider: Anthropic ; Template Type: SQL Query ; … ]
+Configure Prompt Template [ Template Name: "Name" ; Model Provider: Google ; Template Type: SQL Query ; … ]
+```
+
+Convert that back and paste it into FileMaker, and the step arrives as Google — the setting the developer actually made. **The choice survives the ai2fm round trip where it does not survive FileMaker's own copy and paste.**
+
+This holds for disabled steps too. We checked all five providers in both enabled and disabled form — ten steps — and the serialization is identical in both states: only Google comes across empty, and ai2fm recovers it in both cases.
+
+```fmscript
+// Configure Prompt Template [ Template Name: "Name" ; Model Provider: Google ; Template Type: SQL Query ; … ]
+```
+
+### The point
+
+FileMaker writes Google as an absence and then reads that absence as OpenAI. The information needed to get it right is present in the clipboard — an empty provider element is unambiguous, because no other provider produces one — so this is a case where the correct value was recoverable all along. ai2fm recovers it. FileMaker, reading its own file, does not.
+
+*Reported to Claris — [Data loss bug: "Model Provider: Google" is lost on copy/paste of Configure Prompt Template script steps in Script Workspace (pastes back as OpenAI)](https://community.claris.com/en/s/question/0D5Vy00002pIkEVKA0/data-loss-bug-model-provider-google-is-lost-on-copypaste-of-configure-prompt-template-script-steps-in-script-workspace-pastes-back-as-openai).*
+
+---
+
 ## The bugs we found and did NOT report
 
 Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. Two of the bugs we hit are real — FileMaker genuinely does the wrong thing — but they cannot harm a user. We are documenting them here rather than filing them, and it is worth explaining why.
