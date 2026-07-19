@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page.title | default: site.title }}</title>
+<style>
+  /* ai2fm docs — full-width, flowing text. No fixed centred column. */
+  :root {
+    --ink:        #1b232c;
+    --ink-soft:   #55636f;
+    --bg:         #ffffff;
+    --rule:       #d8e0e8;
+    --brand:      #1a7f37;   /* ai2fm green */
+    --bug:        #c92a2a;   /* step-title red */
+    --code-bg:    #f6f8fa;
+    --code-brd:   #e2e8ef;
+    --tok-comment:#4c7a34;
+    --tok-string: #b45536;
+    --tok-step:   #235d97;
+    --tok-var:    #0f8a80;
+    --tok-tag:    #235d97;
+    --tok-attr:   #7a4bc0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#e6edf3; --ink-soft:#9aa7b2; --bg:#0d1117; --rule:#30363d;
+      --brand:#3fb950; --bug:#ff7b72; --code-bg:#161b22; --code-brd:#30363d;
+      --tok-comment:#7ee787; --tok-string:#ffa657; --tok-step:#79c0ff;
+      --tok-var:#56d4c8; --tok-tag:#79c0ff; --tok-attr:#d2a8ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2.2rem clamp(1rem, 3vw, 3rem) 5rem;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    /* FULL WIDTH — text flows to the page edge, no max-width cap */
+    max-width: none;
+  }
+  .wrap { width: 100%; max-width: none; }
+
+  h1 {
+    color: var(--brand);
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 .4em;
+  }
+  /* step bug titles */
+  h2 {
+    color: var(--bug);
+    font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+    line-height: 1.25;
+    font-weight: 700;
+    margin: 2.4em 0 .6em;
+    padding-top: 1.2em;
+    border-top: 1px solid var(--rule);
+  }
+  /* "What ai2fm does …" sub-heads */
+  h3 {
+    color: var(--brand);
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    font-weight: 700;
+    margin: 1.9em 0 .5em;
+  }
+  p, li { max-width: none; }
+  p { margin: 0 0 1.05em; }
+  strong { color: var(--ink); font-weight: 700; }
+  em { color: var(--ink-soft); }
+  a { color: var(--brand); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: currentColor; }
+  hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5em 0; }
+
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--code-brd);
+    border-radius: 4px;
+    padding: .12em .38em;
+    font: 13.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-brd);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    /* wide code scrolls in its own box; the page never scrolls sideways */
+    overflow-x: auto;
+    margin: 0 0 1.3em;
+  }
+  pre code { background: none; border: 0; padding: 0; white-space: pre; }
+
+  /* .fmscript / xml token colours (mirrors the VS Code grammar) */
+  .highlight .c, .highlight .c1, .highlight .cm { color: var(--tok-comment); font-style: italic; }
+  .highlight .s, .highlight .s1, .highlight .s2, .highlight .dl { color: var(--tok-string); }
+  .highlight .nt { color: var(--tok-tag); }
+  .highlight .na { color: var(--tok-attr); }
+  .highlight .nv, .highlight .vg, .highlight .vi { color: var(--tok-var); }
+  .highlight .k, .highlight .kd, .highlight .nf { color: var(--tok-step); }
+
+  blockquote {
+    margin: 0 0 1.2em; padding: .1em 0 .1em 1.1em;
+    border-left: 3px solid var(--rule); color: var(--ink-soft);
+  }
+  table { border-collapse: collapse; width: 100%; margin: 0 0 1.4em; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--rule); padding: .5em .7em; text-align: left; }
+  th { background: var(--code-bg); }
+  footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+{{ content }}
+<footer>
+  <a href="https://github.com/AxelarEU/ai2fm-community">ai2fm-community on GitHub</a> ·
+  <a href="https://ai2fm.com/">ai2fm.com</a>
+</footer>
+</div>
+</body>
+</html>
