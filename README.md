@@ -21,7 +21,7 @@ If you run into an edge case, a dropped variable, or a compilation error, we wan
 
 During the R&D for ai2fm we found, documented, and reported to Claris a set of bugs in FileMaker's clipboard serialisation — dropped values, renamed XML tags, and structure changes that silently break a step when it is copied between FileMaker 2025 and 2026. Each one is backed by real captured files you can reproduce yourself, alongside how ai2fm reads and bridges it.
 
-➡️ **[Read the Claris Clipboard Bugs catalogue](claris_bugs/claris_clipboard_bugs.md)**
+➡️ **[Read the Claris Clipboard Bugs catalogue](https://axelareu.github.io/ai2fm-community/claris_bugs/claris_clipboard_bugs.html)**  ·  [source on GitHub](claris_bugs/claris_clipboard_bugs.md)
 
 ---
 
