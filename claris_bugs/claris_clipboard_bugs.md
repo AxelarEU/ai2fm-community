@@ -601,6 +601,61 @@ Most entries on this page are about information going missing. This one is about
 
 ---
 
+## Set Dictionary (step 209) — on WinSoft localized builds the spelling language becomes dialog text
+
+**The bug.** This one is not Claris's. On the **WinSoft Middle East** localized build of FileMaker, a Set Dictionary step loses its spelling language the moment you copy, print, or export it. Copy and paste the step and every localized dictionary comes back as **UK English**. Print it or Save as XML and the language is replaced by **unrelated interface text** — `Expire password`, `Account Name:`, `Pages:`. The step in the file is fine; all three serializations read the same corrupted table.
+
+### The files
+
+Open **`DictionaryBug.fmp12`** — but note the prerequisite: this reproduces on the **WinSoft ME build**. Install FileMaker from the Middle East installer, open the file there, and follow the three states below. The extra dictionaries do not exist in the Central European or Claris/USA builds, so those cannot show the failure.
+
+### Why it happens
+
+Set Dictionary stores the chosen language as a small enum id, then resolves that id to a display name through the build's localization string table. Claris ships thirteen languages at values **1 to 13**, and every build has names for them:
+
+```xml
+Português (Brasil) = 1        US English (Medical) = 8
+Português (Portugal) = 2      Deutsch (Neue Regeln) = 9
+Nederlands = 3                Schweizerdeutsch = 10
+Deutsch (Alte Regeln) = 4     US English = 11
+Español = 5                   Svenska = 12
+Italiano = 6                  UK English = 13
+Français = 7
+```
+
+The WinSoft ME installer adds its own dictionaries on top — a `WinsoftDictionaries` folder inside the FileMaker application directory holding Greek, Russian, Hebrew, Slovenian and others. Selecting one stores an enum id **outside 1–13**, and WinSoft never added matching names to the string table. The lookup falls through and returns whatever string happens to sit at that offset:
+
+```xml
+US English = 11                       ← the only value inside 1-13; resolves correctly
+Expire password = 101                 Source field 0 import to = 113
+Account Name: = 102                   Data contains column names = 117
+Password: = 103                       All Pages = 118
+Old Password: = 105                   Pages: = 119
+New Account = 110                     Number pages from: = 121
+```
+
+Every one of those is a string from the Change Password dialog, the Import field-mapping screen, or the Print page-range controls. None is a spelling language.
+
+### One file, three states — and one line that proves it
+
+The test file holds the same forty-two localized dictionary steps plus, on the last line, a step set to **US English**. Watch that last line:
+
+- **Opened on the ME build**, the script renders correctly: `Български`, `Ελληνικά`, `עברית`, `Русский`, `Türkçe`, `ไทย` and the rest, each showing its real language. Line 43 shows `US English`.
+- **Copy the script and paste it**, and all forty-two collapse to `UK English`. Line 43 still shows `US English`.
+- **Open the same file on a CE or USA build**, and all forty-two render empty — `Set Dictionary [Spelling Language:]` with nothing at all. Line 43 still shows `US English`.
+
+`US English` is enum **11**, inside the standard range, so it has a real name in every build's table. It is the one value that survives all three states — which is the root cause demonstrated rather than argued. The languages that break are exactly the ones whose enum id has no name entry.
+
+### What this means for any tool
+
+There is no clean format to recover from. The clipboard, the printed output and the Save-as-XML export all read the same table, so all three carry the same corruption. A tool cannot repair this from the outside, and neither can we: the correct language name simply does not exist anywhere in the build's resources. We build our Set Dictionary support from the official Claris build, where the table is correct, so the step ships clean.
+
+The fix belongs to WinSoft: add the missing value-to-name entries for the dictionaries they ship beyond the standard thirteen. The 1–13 table is already correct.
+
+*Reported to **WinSoft** — ticket [rt2.winsoft.fr #1683], where WinSoft reproduced and confirmed all three failure modes on the ME build, with their own screenshots. Also posted to the Claris community so other users of the localized builds can find it: [Bug Report: WinSoft (ME/CE localized) FileMaker builds corrupt Set Dictionary's language on copy/print/SaXML](https://community.claris.com/en/s/question/0D5Vy00002uuapSKAQ/bug-report-winsoft-mece-localized-filemaker-builds-corrupt-set-dictionarys-language-on-copyprintsaxml).*
+
+---
+
 ## The bugs we found and did NOT report
 
 Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. Two of the bugs we hit are real — FileMaker genuinely does the wrong thing — but they cannot harm a user. We are documenting them here rather than filing them, and it is worth explaining why.
