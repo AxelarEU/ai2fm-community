@@ -656,6 +656,57 @@ The fix belongs to WinSoft: add the missing value-to-name entries for the dictio
 
 ---
 
+## Execute SQL and Import Records ODBC (steps 117 and 35) — "don't save my credentials" flips to "do"
+
+**The bug.** This is the one with a security consequence. An Execute SQL or Import Records step that uses an ODBC data source stores its connection options — including the **"Save user name and password"** checkbox — as a single integer. That integer is encoded differently in FileMaker 2025 and 2026, and paste does not translate it. A step authored in **2025 with the box unchecked**, pasted into **2026**, arrives with the box **checked** — set to save credentials the developer deliberately chose not to store. Both steps share the same encoding, so both are affected.
+
+### The files
+
+Open **`Execute_SQL_Bug_Report_2025.fmp12`** in FileMaker 2025 and **`Execute_SQL_Bug_Report_2026.fmp12`** in FileMaker 2026. The 2025 file's step is configured for an ODBC source with "Save user name and password" **unchecked** and blank credentials. Copy it, paste it into the 2026 file, open Specify SQL → the ODBC Connect dialog — and the checkbox is now on.
+
+### The setting is one bit in an integer that changes between versions
+
+The ODBC configuration copies as a `<Profile>` element with a `flags` integer:
+
+```xml
+<Step enable="True" id="117" name="Execute SQL">
+  <Profile QueryType="Calculation" flags="1560" password="" UserName="" dsn="gemini" DataType="ODBC"/>
+</Step>
+```
+
+The "Save user name and password" state is **bit 64** of that integer: set means on, clear means off. The trouble is that the *rest* of the integer differs between versions. For the same data source, with the box unchecked:
+
+| Save user name and password | FileMaker 2025 | FileMaker 2026 |
+|---|---|---|
+| **Off** | `1560` | `536` |
+| **On** | `1624` | `1624` |
+
+`1560` and `536` are both "off" — neither has bit 64 set — but they are different numbers. When FileMaker 2026 pastes the 2025 value `1560`, it does not re-map the surrounding bits to its own scheme; it reads the raw integer under the 2026 encoding and concludes the step should save credentials. The box comes across checked, with the credential fields blank.
+
+### What ai2fm does — it reads the intent, not the integer
+
+ai2fm does not carry the version-specific number into your script. It decodes bit 64 and writes the **meaning**:
+
+```fmscript
+Execute SQL [ Data Source: "gemini" ; Save credentials: Off ; … ]
+```
+
+`Off` for `1560`, `Off` for `536`, `On` for `1624` — the same answer whichever version's integer it was handed, because the answer is in the bit, not in the surrounding encoding. On the way back, ai2fm writes the integer the destination version actually means: `Save credentials: Off` becomes `536` for FileMaker 2026, so the step pastes in genuinely off — the box unchecked, exactly as authored.
+
+```
+FM 2025 "don't save" (flags 1560)  →  ai2fm "; Save credentials: Off"  →  reverse writes 536  →  pastes into FM 2026 genuinely OFF
+```
+
+FileMaker's own paste of that same step flips the box on. ai2fm carries the developer's choice across intact.
+
+### The point
+
+A migration that copies scripts from 2025 to 2026 silently reverses a security decision — and it is invisible unless someone opens every ODBC step's Connect dialog and checks the box by hand. Because ai2fm works from what the setting *means* rather than the raw number that encodes it, the choice survives the round trip. On this one, ai2fm is not just faithful to FileMaker's clipboard — it is more correct than FileMaker's own paste.
+
+*Reported to Claris — [Bug Report: FileMaker Pro Execute SQL / Import Records ODBC "Save user name and password" flag is not preserved across versions](https://community.claris.com/en/s/question/0D5Vy00002szQ2NKAU/bug-report-filemaker-pro-execute-sql-import-records-odbc-save-user-name-and-password-flag-is-not-preserved-across-versions-a-2025-step-with-credentials-not-saved-pastes-into-2026-with-the-checkbox-wrongly-checked).*
+
+---
+
 ## The bugs we found and did NOT report
 
 Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. Two of the bugs we hit are real — FileMaker genuinely does the wrong thing — but they cannot harm a user. We are documenting them here rather than filing them, and it is worth explaining why.
