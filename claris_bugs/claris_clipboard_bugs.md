@@ -704,7 +704,53 @@ Both problems are FileMaker 2026's, and both are written into the step before an
 
 *Reported to Claris — [Bug Report: FileMaker Pro Execute SQL / Import Records ODBC "Save user name and password" flag is not preserved across versions](https://community.claris.com/en/s/question/0D5Vy00002szQ2NKAU/bug-report-filemaker-pro-execute-sql-import-records-odbc-save-user-name-and-password-flag-is-not-preserved-across-versions-a-2025-step-with-credentials-not-saved-pastes-into-2026-with-the-checkbox-wrongly-checked).*
 
-*(The same Claris report also covers Import Records with an ODBC source. That step is under separate investigation and will get its own entry once its behaviour is captured directly.)*
+*(The same Claris report also covers Import Records with an ODBC source — the same two bugs, documented next.)*
+
+---
+
+## Import Records ODBC (step 35) — the same two bugs, on your data imports
+
+**The bug.** Import Records can pull its rows from an ODBC data source, using the exact same connection settings as Execute SQL — and it inherits the exact same two FileMaker 2026 problems. The **Save credentials** flag is set on with nothing to save, and the **user name** is wrapped in stray quotes. If you migrate scripts across versions, every ODBC import is affected the same way an Execute SQL step is.
+
+### The files
+
+Open **`Import_Records_Bug_Report_2026.fmp12`** in FileMaker 2026. It holds ODBC Import steps with the credential fields left empty, and others with a user name saved. Copy them and inspect the clipboard.
+
+### The empty-credentials step comes across as "save credentials: on"
+
+An ODBC Import step configured to **not** save credentials, with empty user name and password, copies like this:
+
+```xml
+<Profile QueryType="Query" flags="544" password="" UserName="" dsn="gemini" DataType="ODBC">
+```
+
+The `flags` value carries the same "Save user name and password" bit that Execute SQL uses. FileMaker 2026 leaves the step in an inconsistent state — the checkbox on, but no credentials stored — exactly as it does for Execute SQL. ai2fm flags it, on the step:
+
+```fmscript
+# ⚠️ You set "Save credentials" to Off, but FileMaker 2026 turned it back On and saved no credentials — this step will prompt for a user name and password when it runs.
+Import Records [ With dialog: Off ; Verify SSL Certificates ; ODBC Data Source: gemini; Save credentials: Off; … ]
+```
+
+### The saved user name is wrapped in stray quotes
+
+And the step with a saved user name of `root` copies with the quotes baked in:
+
+```xml
+<Profile QueryType="Query" flags="1632" password="12345678" UserName="&quot;root&quot;" dsn="gemini" DataType="ODBC">
+```
+
+`"root"` — the same corruption as Execute SQL. The import runs in FileMaker 2026 but **silently will not run once pasted into FileMaker 2025**, until the quotes are removed. ai2fm shows you the corrected name:
+
+```fmscript
+# ⚠️ The ODBC User Name has stray quotes added by FileMaker 2026 — remove them so it reads root or the step will not run in 2025.
+Import Records [ With dialog: Off ; Verify SSL Certificates ; ODBC Data Source: gemini; User Name: "root"; Password: 12345678; Save credentials: On; … ]
+```
+
+### The point
+
+This is the same pair of FileMaker 2026 bugs as Execute SQL, reached through a different step — because both share the ODBC connection dialog. Whether you query a database with Execute SQL or pull rows from it with Import Records, the credential flag is flipped and the user name is quote-wrapped in the same way, and ai2fm warns you the same way on both. A migrated import that would silently fail becomes one you can see and fix.
+
+*Reported to Claris — [Bug Report: FileMaker Pro Execute SQL / Import Records ODBC "Save user name and password" flag is not preserved across versions](https://community.claris.com/en/s/question/0D5Vy00002szQ2NKAU/bug-report-filemaker-pro-execute-sql-import-records-odbc-save-user-name-and-password-flag-is-not-preserved-across-versions-a-2025-step-with-credentials-not-saved-pastes-into-2026-with-the-checkbox-wrongly-checked).*
 
 ---
 
