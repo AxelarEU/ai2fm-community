@@ -672,7 +672,7 @@ Set the ODBC Connect dialog's "Save user name and password" checkbox to **off**,
 <Profile QueryType="Query" flags="1624" password="" UserName="" dsn="gemini" DataType="ODBC"/>
 ```
 
-The `flags` integer encodes that checkbox, and `1624` means **on** — even though you set it off, and even though there is nothing to save (user name and password are both empty). FileMaker 2026 re-checks the box for you and keeps it checked. Because the wrong value is baked into the copied step, it stays wrong wherever the step goes — pasted into 2026 or 2025 alike. At runtime the step now stops to prompt for a user name and password that were never meant to be asked for.
+The `flags` integer encodes that checkbox, and `1624` means **on** — even though you set it off, and even though there is nothing to save (user name and password are both empty). FileMaker 2026 re-checks the box for you and keeps it checked. The error is the flag itself: your deliberate choice **not** to store credentials has been silently reversed to "store them". Because the wrong value is baked into the copied step, it stays wrong wherever the step goes — pasted into 2026 or 2025 alike.
 
 ai2fm reads that clipboard and flags it, on the step:
 
