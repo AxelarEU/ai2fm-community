@@ -754,34 +754,6 @@ This is the same pair of FileMaker 2026 bugs as Execute SQL, reached through a d
 
 ---
 
-## Print Setup (step 42) and Print (step 43) — the same unstable page setup, and how we protect you on every one
-
-**The situation.** Print PDF is not alone. **Print Setup** and **Print** capture the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block, and they inherit the very same instability documented below for Print PDF: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode all three steps from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
-
-But "we did our best to decode it" is not the same as "we can guarantee it," and on these steps nobody can. So we made a deliberate decision: rather than hand you a page setup that *looks* authoritative when FileMaker itself may be inconsistent, **we warn you on every Print Setup and Print step, in both directions of the round-trip.**
-
-### What ai2fm does — it warns both ways, always
-
-Coming **out** of FileMaker (FM → text), every Print Setup and Print step is prefixed with:
-
-```fmscript
-# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
-```
-
-Going **back into** FileMaker (text → FM), the same steps are prefixed with:
-
-```fmscript
-# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
-```
-
-These are the identical two warnings we attach to Print PDF, applied to Print Setup and Print for the same reason: the steps share the instability, so they share the protection. Both fire unconditionally — we do not try to guess whether a given copy happened to come out right, because from the developer's chair there is no way to tell, and betting on it is exactly the risk we refuse to take on your behalf.
-
-### The point
-
-We would rather be honest than look authoritative. On these three page-setup steps — Print Setup, Print, and Print PDF — we did the hard part (decode the driver blob and recover the real values), and we still tell you, on the way out and on the way back in, to open Print Setup and print a test page before you rely on the result. The instability is FileMaker's; the two-way warning is ours, on every one of these steps, so an inconsistency FileMaker introduces can never reach production silently through us. The Print PDF reports that follow are the filed, reproducible evidence of that instability.
-
----
-
 ## Print PDF (step 242) — the page setup is unstable: three serializations of the same two steps disagree
 
 **The bug.** Print PDF is new in FileMaker 2026, and it captures a page setup — orientation and paper size. Author two Print PDF steps as **Landscape / Letter**, save, and copy them, and FileMaker produces three serializations of those two saved, unedited steps that **disagree with each other and with what you authored**. The two steps are identical apart from the With-dialog flag, yet they do not come out the same.
@@ -877,6 +849,34 @@ And it still fires the same two warnings — the forward one coming out of FileM
 The defect here is not in the clipboard — a clean save repairs that — it is in the SaXML and printed-output path, and it is per-step and inconsistent. Because migration tooling reads the SaXML, a Print PDF step you deliberately set to Landscape / Letter can migrate and print as Portrait / A4, silently, for some steps and not others in the same script. FileMaker needs to serialize the page setup deterministically for every step, not just the ones that happen to come out right.
 
 *Reported to Claris — [Bug Report (2 of 2): FileMaker Pro 2026 — after a clean save the Clipboard XML is correct but SaXML and the printed output still mis-serialize one of two identical Print PDF steps (Portrait/A4 instead of the saved Landscape/Letter)](https://community.claris.com/en/s/question/0D5Vy00002rqw10KAA/bug-report-2-of-2-filemaker-pro-2026-after-a-clean-save-the-clipboard-xml-is-correct-but-saxml-and-the-printed-output-still-misserialize-one-of-two-identical-print-pdf-steps-portraita4-instead-of-the-saved-landscapeletter).*
+
+---
+
+## Print Setup (step 42) and Print (step 43) — the same unstable page setup, and how we protect you on every one
+
+**The situation.** Print PDF is not alone. **Print Setup** and **Print** capture the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block, and they inherit the very same instability documented above for Print PDF: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode all three steps from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
+
+But "we did our best to decode it" is not the same as "we can guarantee it," and on these steps nobody can. So we made a deliberate decision: rather than hand you a page setup that *looks* authoritative when FileMaker itself may be inconsistent, **we warn you on every Print Setup and Print step, in both directions of the round-trip.**
+
+### What ai2fm does — it warns both ways, always
+
+Coming **out** of FileMaker (FM → text), every Print Setup and Print step is prefixed with:
+
+```fmscript
+# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
+```
+
+Going **back into** FileMaker (text → FM), the same steps are prefixed with:
+
+```fmscript
+# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
+```
+
+These are the identical two warnings we attach to Print PDF, applied to Print Setup and Print for the same reason: the steps share the instability, so they share the protection. Both fire unconditionally — we do not try to guess whether a given copy happened to come out right, because from the developer's chair there is no way to tell, and betting on it is exactly the risk we refuse to take on your behalf.
+
+### The point
+
+We would rather be honest than look authoritative. On these three page-setup steps — Print Setup, Print, and Print PDF — we did the hard part (decode the driver blob and recover the real values), and we still tell you, on the way out and on the way back in, to open Print Setup and print a test page before you rely on the result. The instability is FileMaker's; the two-way warning is ours, on every one of these steps, so an inconsistency FileMaker introduces can never reach production silently through us. The two Print PDF reports above are the filed, reproducible evidence of that instability.
 
 ---
 
