@@ -833,16 +833,22 @@ The clean re-save fixed the clipboard: both DEVMODE blobs now read orientation `
 
 ### What ai2fm does — it reads the corrected clipboard, gets both steps right, and still warns
 
-Because ai2fm decodes the clipboard blob, and the clean save made the clipboard correct, it emits both steps as Landscape / Letter — the value you saved:
+Because ai2fm decodes the clipboard blob, and the clean save made the clipboard correct, it emits both steps as Landscape / Letter — the value you saved — and it still prefixes each one with the warning, exactly as it does when the clipboard is wrong. Coming **out** of FileMaker (FM → text):
 
 ```fmscript
+# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
 Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: On ]
+# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
 Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: Off ]
 ```
 
-For this file ai2fm is more faithful to what you authored than FileMaker's own canonical serialization, which still mis-serializes step 0.
+And going **back into** FileMaker (text → FM), the same warning-on-every-step is added the other way:
 
-And it still fires the same two warnings — the forward one coming out of FileMaker, the reverse one going back in — on every one of these steps. That is deliberate: from the developer's chair there is no way to tell the first report's file (clipboard wrong) from this one (clipboard right) without checking, and the printout here is *still* wrong on step 0. ai2fm does not gamble on which case you are in. It reads the honest source, prints the truth, and both directions carry the note telling you to open Print Setup and print a test page before you rely on it. The instability is FileMaker's; the visibility is ai2fm's.
+```fmscript
+# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
+```
+
+For this file ai2fm is more faithful to what you authored than FileMaker's own canonical serialization, which still mis-serializes step 0 — and it *still* warns you both ways regardless. That is deliberate: from the developer's chair there is no way to tell the first report's file (clipboard wrong) from this one (clipboard right) without checking, and the printout here is *still* wrong on step 0. ai2fm does not gamble on which case you are in. It reads the honest source, prints the truth, and both directions carry the note telling you to open Print Setup and print a test page before you rely on it. The instability is FileMaker's; the visibility is ai2fm's.
 
 ### The point
 
