@@ -45,7 +45,10 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 | 11 | Import Records ODBC (35) | The same two bugs, on your data imports | [#bug-11](#bug-11) |
 | 12 | Print PDF (242) | Page setup unstable — three serializations disagree | [#bug-12](#bug-12) |
 | 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | [#bug-13](#bug-13) |
-| 14 | Print Setup (42) & Print (43) | The same unstable page setup — we warn both ways | [#bug-14](#bug-14) |
+| 14 | Print Setup (42) | The same unstable page setup — we warn both ways | [#bug-14](#bug-14) |
+| 15 | Print (43) | The same unstable page setup — we warn both ways | [#bug-15](#bug-15) |
+| 16 | Set Zoom Level (97) | *Not filed* — 2026 Custom zoom leaks into the 2025 clipboard | [#bug-16](#bug-16) |
+| 17 | Re-Login (138) | *Not filed* — 2026 file reference leaks into the 2025 clipboard | [#bug-17](#bug-17) |
 
 ---
 
@@ -895,50 +898,87 @@ The defect here is not in the clipboard — a clean save repairs that — it is 
 ---
 
 <a id="bug-14"></a>
-## Bug 14 — Print Setup (step 42) and Print (step 43) — the same unstable page setup, and how we protect you on every one
+## Bug 14 — Print Setup (step 42) — the same unstable page setup, and how we protect you
 
-**The situation.** Print PDF is not alone. **Print Setup** and **Print** capture the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block, and they inherit the very same instability documented above for Print PDF: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode all three steps from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
+**The situation.** Print PDF is not alone. **Print Setup** captures the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block, and it inherits the very same instability documented above for Print PDF: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode Print Setup from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
 
-But "we did our best to decode it" is not the same as "we can guarantee it," and on these steps nobody can. So we made a deliberate decision: rather than hand you a page setup that *looks* authoritative when FileMaker itself may be inconsistent, **we warn you on every Print Setup and Print step, in both directions of the round-trip.**
+But "we did our best to decode it" is not the same as "we can guarantee it," and on this step nobody can. So we made a deliberate decision: rather than hand you a page setup that *looks* authoritative when FileMaker itself may be inconsistent, **we warn you on every Print Setup step, in both directions of the round-trip.**
 
 ### What ai2fm does — it warns both ways, always
 
-Coming **out** of FileMaker (FM → text), every Print Setup and Print step is prefixed with:
+Coming **out** of FileMaker (FM → text), every Print Setup step is prefixed with:
 
 ```fmscript
 # ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
 ```
 
-Going **back into** FileMaker (text → FM), the same steps are prefixed with:
+Going **back into** FileMaker (text → FM), the same step is prefixed with:
 
 ```fmscript
 # ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
 ```
 
-These are the identical two warnings we attach to Print PDF, applied to Print Setup and Print for the same reason: the steps share the instability, so they share the protection. Both fire unconditionally — we do not try to guess whether a given copy happened to come out right, because from the developer's chair there is no way to tell, and betting on it is exactly the risk we refuse to take on your behalf.
+These are the identical two warnings we attach to Print PDF, applied to Print Setup for the same reason: the step shares the instability, so it shares the protection. Both fire unconditionally — we do not try to guess whether a given copy happened to come out right, because from the developer's chair there is no way to tell, and betting on it is exactly the risk we refuse to take on your behalf.
 
 ### The point
 
-We would rather be honest than look authoritative. On these three page-setup steps — Print Setup, Print, and Print PDF — we did the hard part (decode the driver blob and recover the real values), and we still tell you, on the way out and on the way back in, to open Print Setup and print a test page before you rely on the result. The instability is FileMaker's; the two-way warning is ours, on every one of these steps, so an inconsistency FileMaker introduces can never reach production silently through us. The two Print PDF reports above are the filed, reproducible evidence of that instability.
+We would rather be honest than look authoritative. On Print Setup we did the hard part (decode the driver blob and recover the real values), and we still tell you, on the way out and on the way back in, to open Print Setup and print a test page before you rely on the result. The instability is FileMaker's; the two-way warning is ours. The two Print PDF reports above are the filed, reproducible evidence of that instability, which Print Setup shares.
+
+---
+
+<a id="bug-15"></a>
+## Bug 15 — Print (step 43) — the same unstable page setup, and how we protect you
+
+**The situation.** **Print** captures the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block as Print Setup and Print PDF, and it inherits the very same instability documented above: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode Print from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
+
+As with Print Setup, decoding it well is not the same as guaranteeing it, and on this step nobody can. So we make the same deliberate decision: rather than hand you a page setup that *looks* authoritative when FileMaker itself may be inconsistent, **we warn you on every Print step, in both directions of the round-trip.**
+
+### What ai2fm does — it warns both ways, always
+
+Coming **out** of FileMaker (FM → text), every Print step is prefixed with:
+
+```fmscript
+# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
+```
+
+Going **back into** FileMaker (text → FM), the same step is prefixed with:
+
+```fmscript
+# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
+```
+
+These are the identical two warnings we attach to Print Setup and Print PDF, applied to Print for the same reason: the step shares the instability, so it shares the protection. Both fire unconditionally — we do not try to guess whether a given copy happened to come out right, because from the developer's chair there is no way to tell, and betting on it is exactly the risk we refuse to take on your behalf.
+
+### The point
+
+We would rather be honest than look authoritative. On Print we did the hard part (decode the driver blob and recover the real values), and we still tell you, on the way out and on the way back in, to open Print Setup and print a test page before you rely on the result. The instability is FileMaker's; the two-way warning is ours. The two Print PDF reports above are the filed, reproducible evidence of that instability, which Print shares.
 
 ---
 
 ## The bugs we found and did NOT report
 
-Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. Two of the bugs we hit are real — FileMaker genuinely does the wrong thing — but they cannot harm a user. We are documenting them here rather than filing them, and it is worth explaining why.
+Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. The next two bugs are real — FileMaker genuinely does the wrong thing — but they cannot harm a user, so we are documenting them here rather than filing them. Both are the same phenomenon:
 
-**FileMaker 2025's clipboard leaks 2026 features it does not understand.** Open a file authored in FileMaker 2026 with FileMaker 2025, copy a step, and in some cases the 2026-only data rides along into the clipboard — even though 2025 has no idea what it is. We saw it on **Set Zoom Level (step 97)**, where 2026's Custom zoom calculation survives into the 2025 copy, and on **Re-Login (step 138)**, where a 2026 file reference does the same.
+**FileMaker 2025's clipboard leaks 2026 features it does not understand.** Open a file authored in FileMaker 2026 with FileMaker 2025, copy a step, and in some cases the 2026-only data rides along into the clipboard — even though 2025 has no idea what it is. The reason is structural, and it explains why some steps leak and others do not:
 
-The reason it happens is structural, and it explains why some steps leak and others do not:
-
-- When the 2026 feature is a **new value inside an element 2025 already knows** — Set Zoom Level's Custom is a new option on the existing `<Zoom>` element — the data passes through 2025's parser as an opaque string and lands in the clipboard.
+- When the 2026 feature is a **new value inside an element 2025 already knows**, the data passes through 2025's parser as an opaque string and lands in the clipboard — it leaks.
 - When the 2026 feature is a **brand-new element name** — Show Custom Dialog's window size, Save a Copy as XML's new options — 2025 has no slot for it, correctly drops it, and the clipboard is clean.
 
 So FileMaker 2025 is capable of doing this right, and does, most of the time. The leak is inconsistent with its own correct behaviour, which is what makes it a bug rather than a design choice.
 
-**Why we are not filing it: nobody is affected.** A 2025 user never sees the leaked data — the option does not exist in their version, the interface shows nothing, and pasting the polluted clipboard back into 2025 does nothing at all. The data is not lost either, because it is still in the file: open that same file in 2026 again and the feature is intact. The only software that ever notices is a tool like ai2fm, which reads the clipboard directly and would otherwise show a 2025 developer a control their FileMaker does not have. We handle it on our side and move on.
+**Why we are not filing either one: nobody is affected.** A 2025 user never sees the leaked data — the option does not exist in their version, the interface shows nothing, and pasting the polluted clipboard back into 2025 does nothing at all. The data is not lost either, because it is still in the file: open that same file in 2026 again and the feature is intact. The only software that ever notices is a tool like ai2fm, which reads the clipboard directly and would otherwise show a 2025 developer a control their FileMaker does not have. We handle it on our side and move on. Everything else on this page **destroys or corrupts something a developer deliberately set**; these two only shuffle bytes nobody will ever look at.
 
-That is the distinction worth holding on to. Everything else on this page **destroys or corrupts something a developer deliberately set** — a template name, a credential, an operation, a read size. This one shuffles bytes nobody will ever look at. Both are bugs; only one is worth a report.
+The two steps where we saw it — each with its own reproducer file:
+
+<a id="bug-16"></a>
+### Bug 16 — Set Zoom Level (step 97) — 2026's Custom zoom leaks into the 2025 clipboard
+
+Set Zoom Level's **Custom** option is new in FileMaker 2026: it stores a zoom calculation as a new value on the existing `<Zoom>` element. Because `<Zoom>` is an element FileMaker 2025 already knows, when a 2026-authored step is copied under 2025 the Custom zoom calculation **passes through 2025's parser as an opaque string and survives into the 2025 clipboard** — even though 2025 has no Custom option to show it in. A 2025 developer sees nothing (the interface offers no Custom zoom), pasting the clipboard back into 2025 does nothing, and the value is still safe in the file for when it is next opened in 2026. Only a tool reading the clipboard directly would notice the leaked calculation; ai2fm handles it on our side. Real bug, zero user impact — documented, not filed.
+
+<a id="bug-17"></a>
+### Bug 17 — Re-Login (step 138) — a 2026 file reference leaks into the 2025 clipboard
+
+Re-Login's data-source file reference is new in FileMaker 2026, and it rides in the same way: copied under FileMaker 2025, the 2026 `<FileReference>` data **leaks into the 2025 clipboard** because it travels inside structure 2025's parser passes through opaquely. As with Set Zoom Level, the 2025 interface shows nothing, pasting back into 2025 does nothing, and the file itself is unharmed — the feature returns intact when the file is reopened in 2026. Only a direct clipboard reader sees the leak; ai2fm absorbs it. Same class, same verdict: real bug, no user impact, documented rather than reported.
 
 ---
 
