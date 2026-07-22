@@ -5,7 +5,7 @@ title: "FileMaker Clipboard Bugs — verified, with reproducible test files"
 
 # FileMaker Clipboard Bugs — verified, with reproducible test files
 
-*Published by ai2fm · companion to the v2.5 release · last updated 2026-07-18*
+*Published by ai2fm · companion to the v2.5 release · last updated 2026-07-22*
 
 During the R&D for **ai2fm v2.5** we found, documented and reported to Claris International Inc. a set of bugs in FileMaker's clipboard serialisation. This page is the account of each one — but unlike a changelog, **every claim here is backed by files you can download and reproduce yourself.**
 
@@ -26,7 +26,31 @@ Open the file, copy the same step in your own FileMaker, and you will get the sa
 
 ---
 
-## Perform Find by Natural Language (step 221) — the Prompt Template Name is dropped in 2025
+## Index — every bug, numbered and linkable
+
+Each bug below has a stable anchor. Our FileMaker reproducer files link straight to the bug they were built for — for example `…/claris_clipboard_bugs.html#bug-4` opens Bug 4.
+
+| # | Step | Bug | Link |
+|---|---|---|---|
+| 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | [#bug-1](#bug-1) |
+| 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | [#bug-2](#bug-2) |
+| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | [#bug-3](#bug-3) |
+| 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | [#bug-4](#bug-4) |
+| 5 | Perform RAG Action — Add Data (219) | Response Target dropped for (Async) sources | [#bug-5](#bug-5) |
+| 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | [#bug-6](#bug-6) |
+| 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | [#bug-7](#bug-7) |
+| 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | [#bug-8](#bug-8) |
+| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | [#bug-9](#bug-9) |
+| 10 | Execute SQL (117) | Two ways FileMaker 2026 breaks an ODBC connection | [#bug-10](#bug-10) |
+| 11 | Import Records ODBC (35) | The same two bugs, on your data imports | [#bug-11](#bug-11) |
+| 12 | Print PDF (242) | Page setup unstable — three serializations disagree | [#bug-12](#bug-12) |
+| 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | [#bug-13](#bug-13) |
+| 14 | Print Setup (42) & Print (43) | The same unstable page setup — we warn both ways | [#bug-14](#bug-14) |
+
+---
+
+<a id="bug-1"></a>
+## Bug 1 — Perform Find by Natural Language (step 221) — the Prompt Template Name is dropped in 2025
 
 **The bug.** In FileMaker **2025**, copying a Perform Find by Natural Language step **drops the Prompt Template Name** from the clipboard. FileMaker **2026** fixed it. So a step copied in 2025 arrives with the Template Name already gone — before any tool sees it.
 
@@ -114,7 +138,8 @@ The bug is FileMaker's; the loss is real; and ai2fm's job is to make the loss **
 
 ---
 
-## Configure AI Account (step 212) — the XML tag was renamed, so the two versions can't share a step
+<a id="bug-2"></a>
+## Bug 2 — Configure AI Account (step 212) — the XML tag was renamed, so the two versions can't share a step
 
 **The bug.** FileMaker 2025 misspelled its own element names. FileMaker 2026 corrected the spelling — and gave neither version a fallback for the other. The result is a wall in *both* directions: a Configure AI Account step copied in one version, pasted into the other, comes in with **Account Name, Endpoint and API key silently blanked.** The paste appears to succeed; your credentials are just gone.
 
@@ -189,7 +214,8 @@ FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in eithe
 
 ---
 
-## Configure Machine Learning Model (step 202) — the structure changed, and a bad paste becomes a different command
+<a id="bug-3"></a>
+## Bug 3 — Configure Machine Learning Model (step 202) — the structure changed, and a bad paste becomes a different command
 
 **The bug.** FileMaker 2025 and FileMaker 2026 write this step with different XML *structures*, and neither version's importer accepts the other's. Copy the step across versions and it does not error — it pastes a step that is quietly **wrong in two ways**: the **From** source field is dropped, and the **Operation** resets to `Unload`. A `Vision` model step becomes an `Unload` step. This is the most dangerous failure on this page, because the result looks like a perfectly valid command — just not the one you had.
 
@@ -255,7 +281,8 @@ FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step:
 
 ---
 
-## Set Data File Position (step 195) — the New position value is dropped on copy in 2026
+<a id="bug-4"></a>
+## Bug 4 — Set Data File Position (step 195) — the New position value is dropped on copy in 2026
 
 **The bug.** FileMaker **2026** drops the **New position** value (the byte offset to seek to) from the clipboard when you copy a Set Data File Position step. The value is fine in your file and fine in the Script Workspace — it is lost only in the clipboard, at the moment of copy. FileMaker **2025** copies the same step correctly. Because the loss is in the clipboard, it travels with it: paste the 2026-copied step back into FileMaker — 2026 **or** 2025 — and the New position is gone in both.
 
@@ -343,7 +370,8 @@ FileMaker 2026 loses the New position the moment you copy the step, in a way not
 
 ---
 
-## Perform RAG Action — Add Data (step 219) — the Response Target is dropped, but only for the (Async) sources
+<a id="bug-5"></a>
+## Bug 5 — Perform RAG Action — Add Data (step 219) — the Response Target is dropped, but only for the (Async) sources
 
 **The bug.** In FileMaker **2026**, a Perform RAG Action step with **Action: Add Data** can store a **Response Target** — the field or variable that receives the document ID the RAG server returns. Copying that step keeps the Response Target when the source is **From Container** or **From File**, but **drops it when the source is the *(Async)* variant** (From Container (Async) / From File (Async)). Same step, same option — the loss depends entirely on which data source you picked. This is a 2026-only step, so there is no earlier version to compare against; the bug is FileMaker 2026 losing part of its own new feature on copy.
 
@@ -417,7 +445,8 @@ FileMaker 2026 keeps the Add-Data Response Target for the synchronous sources an
 
 ---
 
-## Read from Data File (step 193) — the Amount is dropped on copy, and in 2025 two very different scripts look identical
+<a id="bug-6"></a>
+## Bug 6 — Read from Data File (step 193) — the Amount is dropped on copy, and in 2025 two very different scripts look identical
 
 **The bug.** In FileMaker **2026**, copying a Read from Data File step **drops the Amount (bytes)** value — the number of bytes to read — from the clipboard. The step in your file still holds it. Only the copy loses it. What makes this one worth reading twice is what happens next in FileMaker 2025: depending on how the step got there, the Amount is either **hidden but alive** or **gone for good** — and the two are indistinguishable on screen.
 
@@ -501,7 +530,8 @@ One honest caveat: a step copied out of a 2025 file gives no sign of trouble, be
 
 ---
 
-## Configure Prompt Template (step 226) — a Google step pastes back as OpenAI
+<a id="bug-7"></a>
+## Bug 7 — Configure Prompt Template (step 226) — a Google step pastes back as OpenAI
 
 **The bug.** In FileMaker **2026**, a Configure Prompt Template step set to **Model Provider: Google** does not survive a copy and paste. The pasted step comes back as **OpenAI**. Every other provider — ChatGPT, Anthropic, Cohere, Custom — is preserved correctly. Only Google is affected, and the step then runs against a different AI provider than the one the developer chose.
 
@@ -550,7 +580,8 @@ FileMaker writes Google as an absence and then reads that absence as OpenAI. The
 
 ---
 
-## Refresh Portal (step 180) — a parameter that exists, displays, and cannot be set
+<a id="bug-8"></a>
+## Bug 8 — Refresh Portal (step 180) — a parameter that exists, displays, and cannot be set
 
 **The bug.** Refresh Portal carries a **Repetition** parameter that no developer can reach. FileMaker's Script Workspace displays it — `Refresh Portal [Object Name: "thePortal"; Repetition: 1]` — and the copied clipboard serializes it. But the step's options panel offers no field for it, so it cannot be entered, edited, or removed. It appears on its own when an Object Name is set, its value is always `1`, and it is absent from both the documentation and the step's own SaXML.
 
@@ -601,7 +632,8 @@ Most entries on this page are about information going missing. This one is about
 
 ---
 
-## Set Dictionary (step 209) — on WinSoft localized builds the spelling language becomes dialog text
+<a id="bug-9"></a>
+## Bug 9 — Set Dictionary (step 209) — on WinSoft localized builds the spelling language becomes dialog text
 
 **The bug.** This one is not Claris's. On the **WinSoft Middle East** localized build of FileMaker, a Set Dictionary step loses its spelling language the moment you copy, print, or export it. Copy and paste the step and every localized dictionary comes back as **UK English**. Print it or Save as XML and the language is replaced by **unrelated interface text** — `Expire password`, `Account Name:`, `Pages:`. The step in the file is fine; all three serializations read the same corrupted table.
 
@@ -656,7 +688,8 @@ The fix belongs to WinSoft: add the missing value-to-name entries for the dictio
 
 ---
 
-## Execute SQL (step 117) — two ways FileMaker 2026 breaks an ODBC connection
+<a id="bug-10"></a>
+## Bug 10 — Execute SQL (step 117) — two ways FileMaker 2026 breaks an ODBC connection
 
 **The bug.** An Execute SQL step that connects to an ODBC data source has two settings FileMaker 2026 mishandles: the **Save credentials** checkbox and the **user name**. Both are corrupted the moment you save the step in 2026, and the damage travels with the step wherever you paste it. ai2fm cannot undo what FileMaker already wrote — but it can tell you, on the exact step, what happened and what to fix.
 
@@ -708,7 +741,8 @@ Both problems are FileMaker 2026's, and both are written into the step before an
 
 ---
 
-## Import Records ODBC (step 35) — the same two bugs, on your data imports
+<a id="bug-11"></a>
+## Bug 11 — Import Records ODBC (step 35) — the same two bugs, on your data imports
 
 **The bug.** Import Records can pull its rows from an ODBC data source, using the exact same connection settings as Execute SQL — and it inherits the exact same two FileMaker 2026 problems. The **Save credentials** flag is set on with nothing to save, and the **user name** is wrapped in stray quotes. If you migrate scripts across versions, every ODBC import is affected the same way an Execute SQL step is.
 
@@ -754,7 +788,8 @@ This is the same pair of FileMaker 2026 bugs as Execute SQL, reached through a d
 
 ---
 
-## Print PDF (step 242) — the page setup is unstable: three serializations of the same two steps disagree
+<a id="bug-12"></a>
+## Bug 12 — Print PDF (step 242) — the page setup is unstable: three serializations of the same two steps disagree
 
 **The bug.** Print PDF is new in FileMaker 2026, and it captures a page setup — orientation and paper size. Author two Print PDF steps as **Landscape / Letter**, save, and copy them, and FileMaker produces three serializations of those two saved, unedited steps that **disagree with each other and with what you authored**. The two steps are identical apart from the With-dialog flag, yet they do not come out the same.
 
@@ -812,7 +847,8 @@ This is the only bug on this page where no serialization can be trusted, because
 
 ---
 
-## Print PDF (step 242), continued — a clean save fixes the clipboard, but not the SaXML or the printout
+<a id="bug-13"></a>
+## Bug 13 — Print PDF (step 242), continued — a clean save fixes the clipboard, but not the SaXML or the printout
 
 **The bug.** The first report showed all three serializations disagreeing. This one shows what is left after you re-save the steps cleanly: the clipboard corrects itself, but FileMaker's canonical SaXML export and its printed output **still get one of the two identical steps wrong** — Portrait / A4 instead of the saved Landscape / Letter, on step 0 but not step 1.
 
@@ -858,7 +894,8 @@ The defect here is not in the clipboard — a clean save repairs that — it is 
 
 ---
 
-## Print Setup (step 42) and Print (step 43) — the same unstable page setup, and how we protect you on every one
+<a id="bug-14"></a>
+## Bug 14 — Print Setup (step 42) and Print (step 43) — the same unstable page setup, and how we protect you on every one
 
 **The situation.** Print PDF is not alone. **Print Setup** and **Print** capture the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block, and they inherit the very same instability documented above for Print PDF: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode all three steps from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
 
