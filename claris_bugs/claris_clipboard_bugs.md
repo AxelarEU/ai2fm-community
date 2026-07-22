@@ -754,6 +754,86 @@ This is the same pair of FileMaker 2026 bugs as Execute SQL, reached through a d
 
 ---
 
+## Print PDF (step 242) — the page setup is unstable: three serializations of the same two steps disagree
+
+**The bug.** Print PDF is new in FileMaker 2026, and it captures a page setup — orientation and paper size. Author two Print PDF steps as **Landscape / Letter**, save, and copy them, and FileMaker produces three serializations of those two saved, unedited steps that **disagree with each other and with what you authored**. The two steps are identical apart from the With-dialog flag, yet they do not come out the same.
+
+### The files
+
+Open **`Print_PDF_Bug_Report.fmp12`** on FileMaker Pro 2026 (Windows). Two Print PDF steps, both set to Landscape / Letter, saved and not edited. Copy them, export the SaXML, and look at the printed output — three views of the same two steps.
+
+### What FileMaker gives us
+
+Copy the steps and read the three sources. For two steps you authored identically:
+
+| Source | step 0 | step 1 |
+|---|---|---|
+| Script Workspace (authored) | Landscape / Letter | Landscape / Letter |
+| Clipboard XML (`<PlatformData W_PM>` DEVMODE) | Landscape / Letter | **Portrait / A4** |
+| SaXML `<PageSetup>` | Portrait / Letter | Portrait / Letter |
+| Printed output | Portrait / 8.5" × 11" | Portrait / 8.5" × 11" |
+
+The page setup lives in the clipboard as a binary Windows DEVMODE blob inside `<PlatformData PlatformType="W_PM">`. Two bytes decide it: **orientation** at byte 77 (`1` = portrait, `2` = landscape) and **paper size** at byte 79 (`1` = Letter, `9` = A4). Step 0 reads `2` / `1` — Landscape / Letter, the value you set. Step 1 reads `1` / `9` — Portrait / A4, which nobody set. Two identical steps, two different page setups, in a single copy. And step 1's blob is internally inconsistent: the paper-size code says A4 while other measurements in the same blob still read Letter.
+
+The other two sources agree only in being wrong. The SaXML `<PageSetup>` reads `<Orientation name="Portrait" value="0">` with a Letter `<size>` for **both** steps — the authored Landscape is nowhere in it. The printed output renders Portrait / 8.5" × 11" for both.
+
+### What ai2fm does — it reads the one blob and surfaces exactly what FileMaker wrote
+
+ai2fm decodes the DEVMODE blob directly rather than trusting the SaXML or the printout, because the blob is the least-unreliable of the three: it is the only source that ever carries the authored Landscape at all. Reading the clipboard above, it emits each step as FileMaker actually serialized it:
+
+```fmscript
+Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: On ]
+Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Portrait ; Paper size: 8.26" x 11.69" ; With dialog: Off ]
+```
+
+It cannot invent a value the blob does not hold — step 1 genuinely encodes Portrait / A4, so that is what it shows — but it does not silently discard the authored Landscape the way the SaXML and the printout do. And every Print PDF step carries a one-line note that the page setup comes from a driver-specific block and should be confirmed after pasting.
+
+### The point
+
+This is the only bug on this page where no serialization can be trusted, because they disagree. The value you set survives in one of the three — the clipboard blob — and not in the other two. Since the SaXML is the format migration tooling reads, a step deliberately set to Landscape can migrate as Portrait, and two steps you built the same way can migrate differently. The fix is for FileMaker to persist and serialize the page setup deterministically, so all three views agree with each other and with what you authored.
+
+*Reported to Claris — [Bug Report (1 of 2): FileMaker Pro 2026 Print PDF page setup is unstable/inconsistent — the Clipboard XML of the same two saved steps disagrees with SaXML, the printed output, and the authored Landscape/Letter](https://community.claris.com/en/s/question/0D5Vy00002rqoRFKAY/bug-report-1-of-2-filemaker-pro-2026-print-pdf-page-setup-is-unstableinconsistent-clipboard-xml-serialization-of-the-same-two-saved-steps-disagree-with-saxml-and-printed-output-and-with-the-authored-landscapeletter).*
+
+---
+
+## Print PDF (step 242), continued — a clean save fixes the clipboard, but not the SaXML or the printout
+
+**The bug.** The first report showed all three serializations disagreeing. This one shows what is left after you re-save the steps cleanly: the clipboard corrects itself, but FileMaker's canonical SaXML export and its printed output **still get one of the two identical steps wrong** — Portrait / A4 instead of the saved Landscape / Letter, on step 0 but not step 1.
+
+### The files
+
+Open **`Print_PDF_Bug_Report_2.fmp12`** on FileMaker Pro 2026 (Windows). The same two Print PDF steps, both re-saved cleanly to Landscape / Letter, identical apart from the With-dialog flag (step 0 On, step 1 Off).
+
+### What FileMaker gives us
+
+| Source | step 0 | step 1 |
+|---|---|---|
+| Script Workspace (authored) | Landscape / Letter | Landscape / Letter |
+| Clipboard XML (`<PlatformData W_PM>` DEVMODE) | Landscape / Letter ✓ | Landscape / Letter ✓ |
+| SaXML `<PageSetup>` | **Portrait / A4 ✗** | Landscape / Letter ✓ |
+| Printed output | **Portrait / 8.26" × 11.69" ✗** | Landscape / 8.5" × 11" ✓ |
+
+The clean re-save fixed the clipboard: both DEVMODE blobs now read orientation `2` (Landscape) and paper `1` (Letter) — correct, and consistent between the two steps. But the SaXML tells a different story per step. Step 0 serializes as `<Orientation name="Portrait" value="0">` with `<size width="826.39" height="1169.44">` — Portrait, and those dimensions are A4, not Letter. Step 1 serializes as `<Orientation name="Landscape" value="2">` with `<size width="850" height="1100">` — Landscape, Letter, correct. The printout matches the SaXML: step 0 prints Portrait / A4, step 1 prints Landscape / Letter. Same authoring, same save, one step right and one step wrong, in the same export.
+
+### What ai2fm does — it reads the corrected clipboard and gets both steps right
+
+Because ai2fm decodes the clipboard blob, and the clean save made the clipboard correct, it emits both steps as Landscape / Letter — the value you saved:
+
+```fmscript
+Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: On ]
+Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: Off ]
+```
+
+For this file ai2fm is more faithful to what you authored than FileMaker's own canonical serialization, which still mis-serializes step 0.
+
+### The point
+
+The defect here is not in the clipboard — a clean save repairs that — it is in the SaXML and printed-output path, and it is per-step and inconsistent. Because migration tooling reads the SaXML, a Print PDF step you deliberately set to Landscape / Letter can migrate and print as Portrait / A4, silently, for some steps and not others in the same script. FileMaker needs to serialize the page setup deterministically for every step, not just the ones that happen to come out right.
+
+*Reported to Claris — [Bug Report (2 of 2): FileMaker Pro 2026 — after a clean save the Clipboard XML is correct but SaXML and the printed output still mis-serialize one of two identical Print PDF steps (Portrait/A4 instead of the saved Landscape/Letter)](https://community.claris.com/en/s/question/0D5Vy00002rqw10KAA/bug-report-2-of-2-filemaker-pro-2026-after-a-clean-save-the-clipboard-xml-is-correct-but-saxml-and-the-printed-output-still-misserialize-one-of-two-identical-print-pdf-steps-portraita4-instead-of-the-saved-landscapeletter).*
+
+---
+
 ## The bugs we found and did NOT report
 
 Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. Two of the bugs we hit are real — FileMaker genuinely does the wrong thing — but they cannot harm a user. We are documenting them here rather than filing them, and it is worth explaining why.
