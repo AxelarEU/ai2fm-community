@@ -777,7 +777,7 @@ The page setup lives in the clipboard as a binary Windows DEVMODE blob inside `<
 
 The other two sources agree only in being wrong. The SaXML `<PageSetup>` reads `<Orientation name="Portrait" value="0">` with a Letter `<size>` for **both** steps — the authored Landscape is nowhere in it. The printed output renders Portrait / 8.5" × 11" for both.
 
-### What ai2fm does — it reads the one blob and surfaces exactly what FileMaker wrote
+### What ai2fm does — it reads the one honest source, and warns you in both directions
 
 ai2fm decodes the DEVMODE blob directly rather than trusting the SaXML or the printout, because the blob is the least-unreliable of the three: it is the only source that ever carries the authored Landscape at all. Reading the clipboard above, it emits each step as FileMaker actually serialized it:
 
@@ -786,7 +786,23 @@ Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ...
 Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Portrait ; Paper size: 8.26" x 11.69" ; With dialog: Off ]
 ```
 
-It cannot invent a value the blob does not hold — step 1 genuinely encodes Portrait / A4, so that is what it shows — but it does not silently discard the authored Landscape the way the SaXML and the printout do. And every Print PDF step carries a one-line note that the page setup comes from a driver-specific block and should be confirmed after pasting.
+It cannot invent a value the blob does not hold — step 1 genuinely encodes Portrait / A4, so that is what it shows — but it does not silently discard the authored Landscape the way the SaXML and the printout do.
+
+Because FileMaker's own values cannot be trusted here, ai2fm does not stop at reading them faithfully — it **warns you in both directions**, so you are never left assuming a page setup is right when FileMaker may have serialized it wrong.
+
+Coming **out** of FileMaker (FM → text), every Print Setup, Print, and Print PDF step is prefixed with:
+
+```fmscript
+# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
+```
+
+Going **back into** FileMaker (text → FM), the same three steps are prefixed with:
+
+```fmscript
+# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
+```
+
+Two warnings, one on each side of the round-trip, on all three page-setup steps. Where FileMaker is silently inconsistent, ai2fm makes the instability visible and tells you exactly how to confirm the truth — open Print Setup, and print a test page.
 
 ### The point
 
@@ -815,7 +831,7 @@ Open **`Print_PDF_Bug_Report_2.fmp12`** on FileMaker Pro 2026 (Windows). The sam
 
 The clean re-save fixed the clipboard: both DEVMODE blobs now read orientation `2` (Landscape) and paper `1` (Letter) — correct, and consistent between the two steps. But the SaXML tells a different story per step. Step 0 serializes as `<Orientation name="Portrait" value="0">` with `<size width="826.39" height="1169.44">` — Portrait, and those dimensions are A4, not Letter. Step 1 serializes as `<Orientation name="Landscape" value="2">` with `<size width="850" height="1100">` — Landscape, Letter, correct. The printout matches the SaXML: step 0 prints Portrait / A4, step 1 prints Landscape / Letter. Same authoring, same save, one step right and one step wrong, in the same export.
 
-### What ai2fm does — it reads the corrected clipboard and gets both steps right
+### What ai2fm does — it reads the corrected clipboard, gets both steps right, and still warns
 
 Because ai2fm decodes the clipboard blob, and the clean save made the clipboard correct, it emits both steps as Landscape / Letter — the value you saved:
 
@@ -825,6 +841,8 @@ Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ...
 ```
 
 For this file ai2fm is more faithful to what you authored than FileMaker's own canonical serialization, which still mis-serializes step 0.
+
+And it still fires the same two warnings — the forward one coming out of FileMaker, the reverse one going back in — on every one of these steps. That is deliberate: from the developer's chair there is no way to tell the first report's file (clipboard wrong) from this one (clipboard right) without checking, and the printout here is *still* wrong on step 0. ai2fm does not gamble on which case you are in. It reads the honest source, prints the truth, and both directions carry the note telling you to open Print Setup and print a test page before you rely on it. The instability is FileMaker's; the visibility is ai2fm's.
 
 ### The point
 
