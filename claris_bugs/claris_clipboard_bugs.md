@@ -5,7 +5,7 @@ title: "FileMaker Clipboard Bugs — verified, with reproducible test files"
 
 # FileMaker Clipboard Bugs — verified, with reproducible test files
 
-*Published by ai2fm · companion to the v2.5 release · last updated 2026-07-22*
+*Published by ai2fm · companion to the v2.5 release · last updated 2026-07-28*
 
 During the R&D for **ai2fm v2.5** we found, documented and reported to Claris International Inc. a set of bugs in FileMaker's clipboard serialisation. This page is the account of each one — but unlike a changelog, **every claim here is backed by files you can download and reproduce yourself.**
 
@@ -17,6 +17,14 @@ For each bug we ship a folder containing the **FileMaker file itself** plus real
 - where a recovery exists, the corrected files that prove the fix round-trips.
 
 Open the file, copy the same step in your own FileMaker, and you will get the same clipboard. That is the point: nothing here asks for your trust.
+
+### Download the test suite
+
+**[⬇ Bugs_Test_Suite.zip](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/Bugs_Test_Suite.zip)** — 5.4 MB, every file referenced on this page.
+
+All seventeen bug folders, the FileMaker files, the clipboard captures and the `.fmscript` results. Unzip it and the paths in each bug below are exactly the paths you will have on disk. Where a bug was tested on both platforms the folder has `WIN/` and `MAC/` subfolders; where we filed a report with Claris, the files we sent them are in `Submitted_to_Claris/`.
+
+The FileMaker files open in FileMaker Pro 2025 or 2026 as their names say. Nothing in the suite connects to a server or needs a licence — they are ordinary files holding the script steps described here.
 
 ---
 

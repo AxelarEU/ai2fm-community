@@ -11,3 +11,4 @@ relative_links:
   collections: false
 include:
   - claris_bugs
+  - claris_bugs/Bugs_Test_Suite.zip
