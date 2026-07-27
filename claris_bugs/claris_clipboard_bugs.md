@@ -59,13 +59,13 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 
 ### The files
 
-Open **`Perform_Find_by_Natural_Language_2025.fmp12`** in FileMaker 2025, and **`Perform_Find_by_Natural_Language_2026.fmp12`** in FileMaker 2026. Both contain the same Perform Find step, with a Prompt Template Name set. Copy that step in each and compare.
+Open **`1_Perform_Find_by_Natural_Language_2025.fmp12`** in FileMaker 2025, and **`1_Perform_Find_by_Natural_Language_2026.fmp12`** in FileMaker 2026. Both contain the same Perform Find step, with a Prompt Template Name set. Copy that step in each and compare.
 
 **One setting matters: set the ai2fm _Target FileMaker Version_ to match the file you are working in.** Working in the 2025 file → set it to **2025**; working in the 2026 file → set it to **2026**. It lives in the extension settings under *FileMaker Clipboard Bridge → Target FileMaker Version*. Each capture below states which version to use.
 
 ### What FileMaker gives us
 
-With the **Target FileMaker Version set to 2025**, copy the step from **`Perform_Find_by_Natural_Language_2025.fmp12`** in FileMaker 2025 → `Source_2025.xml`. The `<LLMCreateFind>` block ends like this:
+With the **Target FileMaker Version set to 2025**, copy the step from **`1_Perform_Find_by_Natural_Language_2025.fmp12`** in FileMaker 2025 → `Source_2025.xml`. The `<LLMCreateFind>` block ends like this:
 
 ```xml
       <Parameters>
@@ -77,7 +77,7 @@ With the **Target FileMaker Version set to 2025**, copy the step from **`Perform
 
 There is **no `<TemplateName>` element.** If a Template Name was set, it is not in the clipboard.
 
-Now switch the **Target FileMaker Version to 2026** and copy the same step from **`Perform_Find_by_Natural_Language_2026.fmp12`** in FileMaker 2026 → `Source_2026.xml`. The same block now contains it:
+Now switch the **Target FileMaker Version to 2026** and copy the same step from **`1_Perform_Find_by_Natural_Language_2026.fmp12`** in FileMaker 2026 → `Source_2026.xml`. The same block now contains it:
 
 ```xml
       <Parameters>
@@ -127,7 +127,7 @@ That clipboard **pastes into FileMaker 2025 with the Template Name intact.** ai2
 
 ### Recovery — Path B: re-copy from FileMaker 2026
 
-If the file is available in FileMaker **2026** (here, `Perform_Find_by_Natural_Language_2026.fmp12`), the simpler route is to copy the step there instead — set the ai2fm **Target FileMaker Version** to 2026 — because 2026's clipboard keeps the Template Name. ai2fm reads `Source_2026.xml` and produces `Result_2026.fmscript` with **no warning and the name preserved**:
+If the file is available in FileMaker **2026** (here, `1_Perform_Find_by_Natural_Language_2026.fmp12`), the simpler route is to copy the step there instead — set the ai2fm **Target FileMaker Version** to 2026 — because 2026's clipboard keeps the Template Name. ai2fm reads `Source_2026.xml` and produces `Result_2026.fmscript` with **no warning and the name preserved**:
 
 ```fmscript
 Perform Find by Natural Language [ Account Name:"theAccount"; Model:"theModel"; Prompt:"thePrompt"; Get: Find Request as JSON; Parameters:"theParameters"; Response Target:myTable::myField; Template Name:"templateName" ]
@@ -148,7 +148,7 @@ The bug is FileMaker's; the loss is real; and ai2fm's job is to make the loss **
 
 ### The files
 
-Open **`Configure_AI_Account_2025.fmp12`** in FileMaker 2025 and **`Configure_AI_Account_2026.fmp12`** in FileMaker 2026. Each holds the same Configure AI Account step, with an account name, endpoint and API key set. As before, set the ai2fm **Target FileMaker Version** (in the ai2fm sidebar, or in *FileMaker Clipboard Bridge → Target FileMaker Version*) to match wherever you are pasting.
+Open **`2_Configure_AI_Account_2025.fmp12`** in FileMaker 2025 and **`2_Configure_AI_Account_2026.fmp12`** in FileMaker 2026. Each holds the same Configure AI Account step, with an account name, endpoint and API key set. As before, set the ai2fm **Target FileMaker Version** (in the ai2fm sidebar, or in *FileMaker Clipboard Bridge → Target FileMaker Version*) to match wherever you are pasting.
 
 ### The two clipboards differ in one thing: the spelling
 
@@ -224,7 +224,7 @@ FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in eithe
 
 ### The files
 
-Open **`Configure_Machine_Learning_Model_2025.fmp12`** in FileMaker 2025 and **`Configure_Machine_Learning_Model_2026.fmp12`** in FileMaker 2026. Each holds the same two steps — a `Vision` and a `General` model configuration, each with a model name and a `From` field. Set the ai2fm **Target FileMaker Version** (in the ai2fm sidebar, or *FileMaker Clipboard Bridge → Target FileMaker Version*) to match wherever you are pasting.
+Open **`3_Configure_Machine_Learning_Model_2025.fmp12`** in FileMaker 2025 and **`3_Configure_Machine_Learning_Model_2026.fmp12`** in FileMaker 2026. Each holds the same two steps — a `Vision` and a `General` model configuration, each with a model name and a `From` field. Set the ai2fm **Target FileMaker Version** (in the ai2fm sidebar, or *FileMaker Clipboard Bridge → Target FileMaker Version*) to match wherever you are pasting.
 
 ### The two versions store the operation differently
 
@@ -291,7 +291,7 @@ FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step:
 
 ### The files
 
-Open **`Set_Data_File_Position_2026.fmp12`** in FileMaker 2026 and **`Set_Data_File_Position_2025.fmp12`** in FileMaker 2025. Each holds the same three steps — a New position given as a variable (`$thePosition`), as a literal (`"thePosition"`), and as a field (`myTable::myNumber`). Copy them in each version and compare.
+Open **`4_Set_Data_File_Position_2026.fmp12`** in FileMaker 2026 and **`4_Set_Data_File_Position_2025.fmp12`** in FileMaker 2025. Each holds the same three steps — a New position given as a variable (`$thePosition`), as a literal (`"thePosition"`), and as a field (`myTable::myNumber`). Copy them in each version and compare.
 
 ### What FileMaker gives us
 
@@ -380,7 +380,7 @@ FileMaker 2026 loses the New position the moment you copy the step, in a way not
 
 ### The files
 
-Open **`Perform_RAG_Action_2026.fmp12`** in FileMaker 2026. It holds four Add-Data steps, each with a Response Target set: two using **From Container** (labelled *"This works"*) and two using **From Container (Async)** (labelled *"This fails at copy-paste"*). Copy all four and inspect the clipboard.
+Open **`5_Perform_RAG_Action_2026.fmp12`** in FileMaker 2026. It holds four Add-Data steps, each with a Response Target set: two using **From Container** (labelled *"This works"*) and two using **From Container (Async)** (labelled *"This fails at copy-paste"*). Copy all four and inspect the clipboard.
 
 ### What FileMaker gives us
 
@@ -455,7 +455,7 @@ FileMaker 2026 keeps the Add-Data Response Target for the synchronous sources an
 
 ### The files
 
-Open **`Read_from_Data_File_2026.fmp12`** in FileMaker 2026. It holds six Read from Data File steps: three File ID forms (a field, a `$variable`, a literal) across the three Read-as encodings (Bytes, UTF-16, UTF-8), each with an Amount set. Copy all six.
+Open **`6_Read_from_Data_File_2026.fmp12`** in FileMaker 2026. It holds six Read from Data File steps: three File ID forms (a field, a `$variable`, a literal) across the three Read-as encodings (Bytes, UTF-16, UTF-8), each with an Amount set. Copy all six.
 
 ### What FileMaker gives us
 
@@ -540,7 +540,7 @@ One honest caveat: a step copied out of a 2025 file gives no sign of trouble, be
 
 ### The files
 
-Open **`Configure_Prompt_Template_2026.fmp12`** in FileMaker 2026. It holds Configure Prompt Template steps covering all five providers, in both enabled and disabled form. Copy them and inspect the clipboard.
+Open **`7_Configure_Prompt_Template_2026.fmp12`** in FileMaker 2026. It holds Configure Prompt Template steps covering all five providers, in both enabled and disabled form. Copy them and inspect the clipboard.
 
 ### What FileMaker gives us
 
@@ -642,7 +642,7 @@ Most entries on this page are about information going missing. This one is about
 
 ### The files
 
-Open **`DictionaryBug.fmp12`** — but note the prerequisite: this reproduces on the **WinSoft ME build**. Install FileMaker from the Middle East installer, open the file there, and follow the three states below. The extra dictionaries do not exist in the Central European or Claris/USA builds, so those cannot show the failure.
+Open **`9_DictionaryBug.fmp12`** — but note the prerequisite: this reproduces on the **WinSoft ME build**. Install FileMaker from the Middle East installer, open the file there, and follow the three states below. The extra dictionaries do not exist in the Central European or Claris/USA builds, so those cannot show the failure.
 
 ### Why it happens
 
@@ -698,7 +698,7 @@ The fix belongs to WinSoft: add the missing value-to-name entries for the dictio
 
 ### The files
 
-Open **`Execute_SQL_Bug_Report_2026.fmp12`** in FileMaker 2026. It holds two ODBC Execute SQL steps: one set to **not** save credentials, and one with a user name and password saved. Copy them and look at what the clipboard actually contains.
+Open **`10_Execute_SQL_2026.fmp12`** in FileMaker 2026. It holds two ODBC Execute SQL steps: one set to **not** save credentials, and one with a user name and password saved. Copy them and look at what the clipboard actually contains.
 
 ### Bug one — you say "don't save my credentials", FileMaker 2026 saves them anyway
 
@@ -751,7 +751,28 @@ Both problems are FileMaker 2026's, and both are written into the step before an
 
 ### The files
 
-Open **`Import_Records_Bug_Report_2026.fmp12`** in FileMaker 2026. It holds ODBC Import steps with the credential fields left empty, and others with a user name saved. Copy them and inspect the clipboard.
+Windows:
+
+```
+11_Import_Records_ODBC/WIN/11_Import_Records_from_Odbc_2026.fmp12
+11_Import_Records_ODBC/WIN/11_Import_Records_from_Odbc_2025.fmp12
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2026.xml
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2025.xml
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Result_2026.fmscript
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Result_2025.fmscript
+11_Import_Records_ODBC/WIN/Import_Records_from_ODBC_Copied_from_2026_wrong Crendetials_on_Paste.fmscript
+11_Import_Records_ODBC/WIN/Import_Records_from_ODBC_Copied_from_2026_wrong Crendetials_on_Paste.xml
+```
+
+macOS:
+
+```
+11_Import_Records_ODBC/MAC/11_Import_Records_from_Odbc_MAC_2026.fmp12
+11_Import_Records_ODBC/MAC/Import_Records_ODBC_Source_2026.xml
+11_Import_Records_ODBC/MAC/Import_Records_ODBC_Result_2026.fmscript
+```
+
+Open the `.fmp12` in FileMaker 2026. It holds ODBC Import steps with the credential fields left empty, and others with a user name saved. Copy them and inspect the clipboard. The `_Copied_from_2026_wrong Crendetials_on_Paste` pair shows what lands when a 2026 step is pasted into 2025.
 
 ### The empty-credentials step comes across as "save credentials: on"
 
@@ -782,6 +803,16 @@ And the step with a saved user name of `root` copies with the quotes baked in:
 # ⚠️ The ODBC User Name has stray quotes added by FileMaker 2026 — remove them so it reads root or the step will not run in 2025.
 Import Records [ With dialog: Off ; Verify SSL Certificates ; ODBC Data Source: gemini; User Name: "root"; Password: 12345678; Save credentials: On; … ]
 ```
+
+### Both platforms, the same corruption
+
+We tested this on Windows and on macOS. The clipboard is corrupted the same way on both — the Mac capture carries the identical `flags="1632"` and the identical `UserName="&quot;root&quot;"`, against a MariaDB source over ODBC:
+
+```xml
+<Profile QueryType="Query" flags="1632" password="12345678" UserName="&quot;root&quot;" dsn="mariadb" DataType="ODBC">
+```
+
+ai2fm warns on both, on every affected step. This is not a Windows quirk to be worked around on one platform — it is how FileMaker 2026 writes an ODBC step's credentials, wherever you run it.
 
 ### The point
 
