@@ -59,9 +59,16 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 
 ### The files
 
-Open **`1_Perform_Find_by_Natural_Language_2025.fmp12`** in FileMaker 2025, and **`1_Perform_Find_by_Natural_Language_2026.fmp12`** in FileMaker 2026. Both contain the same Perform Find step, with a Prompt Template Name set. Copy that step in each and compare.
-
-**One setting matters: set the ai2fm _Target FileMaker Version_ to match the file you are working in.** Working in the 2025 file → set it to **2025**; working in the 2026 file → set it to **2026**. It lives in the extension settings under *FileMaker Clipboard Bridge → Target FileMaker Version*. Each capture below states which version to use.
+```
+1_Perform_Find_by_Natural_Language/1_Perform_Find_by_Natural_Language_2025.fmp12
+1_Perform_Find_by_Natural_Language/1_Perform_Find_by_Natural_Language_2026.fmp12
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Corrected_AT_IDE_Result_2025.xml
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Corrected_at_IDE_Result_2025.fmscript
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2025.fmscript
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2026.fmscript
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2025.xml
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2026.xml
+```
 
 ### What FileMaker gives us
 
@@ -148,7 +155,20 @@ The bug is FileMaker's; the loss is real; and ai2fm's job is to make the loss **
 
 ### The files
 
-Open **`2_Configure_AI_Account_2025.fmp12`** in FileMaker 2025 and **`2_Configure_AI_Account_2026.fmp12`** in FileMaker 2026. Each holds the same Configure AI Account step, with an account name, endpoint and API key set. As before, set the ai2fm **Target FileMaker Version** (in the ai2fm sidebar, or in *FileMaker Clipboard Bridge → Target FileMaker Version*) to match wherever you are pasting.
+```
+2_Configure_AI_Account/2_Configure_AI_Account_2025.fmp12
+2_Configure_AI_Account/2_Configure_AI_Account_2026.fmp12
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025 copied from FM2026.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025 copied from FM2026.xml
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2026 copied from FM2025.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2026 copied from FM2025.xml
+2_Configure_AI_Account/Configure_AI_Account_Pastes correctly copied from IDE -> FM2025.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Pastes correctly copied from IDE -> FM2026.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Result_2025.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Result_2026.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Source_2025.xml
+2_Configure_AI_Account/Configure_AI_Account_Source_2026.xml
+```
 
 ### The two clipboards differ in one thing: the spelling
 
@@ -224,7 +244,18 @@ FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in eithe
 
 ### The files
 
-Open **`3_Configure_Machine_Learning_Model_2025.fmp12`** in FileMaker 2025 and **`3_Configure_Machine_Learning_Model_2026.fmp12`** in FileMaker 2026. Each holds the same two steps — a `Vision` and a `General` model configuration, each with a model name and a `From` field. Set the ai2fm **Target FileMaker Version** (in the ai2fm sidebar, or *FileMaker Clipboard Bridge → Target FileMaker Version*) to match wherever you are pasting.
+```
+3_Configure_Machine_Learning_Model/3_Configure_Machine_Learning_Model_2025.fmp12
+3_Configure_Machine_Learning_Model/3_Configure_Machine_Learning_Model_2026.fmp12
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2025 copied from FM2026.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2025 copied from FM2026.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2026 copied from FM2025.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2026 copied from FM2025.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Result_2025.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Result_2026.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2025.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2026.xml
+```
 
 ### The two versions store the operation differently
 
@@ -291,7 +322,15 @@ FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step:
 
 ### The files
 
-Open **`4_Set_Data_File_Position_2026.fmp12`** in FileMaker 2026 and **`4_Set_Data_File_Position_2025.fmp12`** in FileMaker 2025. Each holds the same three steps — a New position given as a variable (`$thePosition`), as a literal (`"thePosition"`), and as a field (`myTable::myNumber`). Copy them in each version and compare.
+```
+4_Set_Data_File_Position/4_Set_Data_File_Position_2025.fmp12
+4_Set_Data_File_Position/4_Set_Data_File_Position_2026.fmp12
+4_Set_Data_File_Position/Set_Data_File_Position_Result_2025.fmscript
+4_Set_Data_File_Position/Set_Data_File_Position_Result_2025.xml
+4_Set_Data_File_Position/Set_Data_File_Position_Result_2026.fmscript
+4_Set_Data_File_Position/Set_Data_File_Position_Source_2025.xml
+4_Set_Data_File_Position/Set_Data_File_Position_Source_2026.xml
+```
 
 ### What FileMaker gives us
 
@@ -380,7 +419,14 @@ FileMaker 2026 loses the New position the moment you copy the step, in a way not
 
 ### The files
 
-Open **`5_Perform_RAG_Action_2026.fmp12`** in FileMaker 2026. It holds four Add-Data steps, each with a Response Target set: two using **From Container** (labelled *"This works"*) and two using **From Container (Async)** (labelled *"This fails at copy-paste"*). Copy all four and inspect the clipboard.
+```
+5_Perform_RAG_Action/5_Perform_RAG_Action_2025.fmp12
+5_Perform_RAG_Action/5_Perform_RAG_Action_2026.fmp12
+5_Perform_RAG_Action/Perform_RAG_Action_Result_2026.fmscript
+5_Perform_RAG_Action/Perform_RAG_Action_Result_Corrected_at_IDE_2026.fmscript
+5_Perform_RAG_Action/Perform_RAG_Action_Source_2026.xml
+5_Perform_RAG_Action/Perform_RAG_Action_Source_Corrected_at_IDE_2026.xml
+```
 
 ### What FileMaker gives us
 
@@ -455,7 +501,16 @@ FileMaker 2026 keeps the Add-Data Response Target for the synchronous sources an
 
 ### The files
 
-Open **`6_Read_from_Data_File_2026.fmp12`** in FileMaker 2026. It holds six Read from Data File steps: three File ID forms (a field, a `$variable`, a literal) across the three Read-as encodings (Bytes, UTF-16, UTF-8), each with an Amount set. Copy all six.
+```
+6_Read_from_Data_File/6_Read_from_Data_File_2025.fmp12
+6_Read_from_Data_File/6_Read_from_Data_File_2026.fmp12
+6_Read_from_Data_File/Read_from_Data_Created_in_2026_Opened_in_2025.xml
+6_Read_from_Data_File/Read_from_Data_Created_in_2026__Opened_in_2025_and_Corrected.xml
+6_Read_from_Data_File/Read_from_Data_File_Corrected_at_IDE_2026.fmscript
+6_Read_from_Data_File/Read_from_Data_File_Corrected_at_IDE_2026.xml
+6_Read_from_Data_File/Read_from_Data_File_Result_2026.fmscript
+6_Read_from_Data_File/Read_from_Data_File_Source_2026.xml
+```
 
 ### What FileMaker gives us
 
@@ -540,7 +595,13 @@ One honest caveat: a step copied out of a 2025 file gives no sign of trouble, be
 
 ### The files
 
-Open **`7_Configure_Prompt_Template_2026.fmp12`** in FileMaker 2026. It holds Configure Prompt Template steps covering all five providers, in both enabled and disabled form. Copy them and inspect the clipboard.
+```
+7_Configure_Prompt_Template/7_Configure_Prompt_Template_2026.fmp12
+7_Configure_Prompt_Template/Configure_Prompt_Template_Result_2026.fmscript
+7_Configure_Prompt_Template/Configure_Prompt_Template_Result_2026_2.fmscript
+7_Configure_Prompt_Template/Configure_Prompt_Template_Source_2026.xml
+7_Configure_Prompt_Template/Configure_Prompt_Template_Source_2026_2.xml
+```
 
 ### What FileMaker gives us
 
@@ -587,6 +648,14 @@ FileMaker writes Google as an absence and then reads that absence as OpenAI. The
 ## Bug 8 — Refresh Portal (step 180) — a parameter that exists, displays, and cannot be set
 
 **The bug.** Refresh Portal carries a **Repetition** parameter that no developer can reach. FileMaker's Script Workspace displays it — `Refresh Portal [Object Name: "thePortal"; Repetition: 1]` — and the copied clipboard serializes it. But the step's options panel offers no field for it, so it cannot be entered, edited, or removed. It appears on its own when an Object Name is set, its value is always `1`, and it is absent from both the documentation and the step's own SaXML.
+
+### The files
+
+```
+8_Refresh_Portal/8_Refresh_Portal_2026.fmp12
+8_Refresh_Portal/Refresh_Portal_Result_2026.fmscript
+8_Refresh_Portal/Refresh_Portal_Source_2026.xml
+```
 
 ### What FileMaker gives us
 
@@ -642,7 +711,17 @@ Most entries on this page are about information going missing. This one is about
 
 ### The files
 
-Open **`9_DictionaryBug.fmp12`** — but note the prerequisite: this reproduces on the **WinSoft ME build**. Install FileMaker from the Middle East installer, open the file there, and follow the three states below. The extra dictionaries do not exist in the Central European or Claris/USA builds, so those cannot show the failure.
+```
+9_Set_Dictionary/9_DictionaryBug.fmp12
+9_Set_Dictionary/Set_Dictionary_Result_2025.fmscript
+9_Set_Dictionary/Set_Dictionary_Result_2025.xml
+9_Set_Dictionary/Set_Dictionary_Result_2026.fmscript
+9_Set_Dictionary/Set_Dictionary_Result_2026.xml
+9_Set_Dictionary/Set_Dictionary_Source_2025.fmscript
+9_Set_Dictionary/Set_Dictionary_Source_2025.xml
+9_Set_Dictionary/Set_Dictionary_Source_2026.fmscript
+9_Set_Dictionary/Set_Dictionary_Source_2026.xml
+```
 
 ### Why it happens
 
@@ -698,7 +777,20 @@ The fix belongs to WinSoft: add the missing value-to-name entries for the dictio
 
 ### The files
 
-Open **`10_Execute_SQL_2026.fmp12`** in FileMaker 2026. It holds two ODBC Execute SQL steps: one set to **not** save credentials, and one with a user name and password saved. Copy them and look at what the clipboard actually contains.
+```
+10_Execute_SQL/10_Execute_SQL_2025.fmp12
+10_Execute_SQL/10_Execute_SQL_2026.fmp12
+10_Execute_SQL/Execute_SQL_Copied_from_2026_Corrected_Crendetials_after_Paste.fmscript
+10_Execute_SQL/Execute_SQL_Copied_from_2026_Corrected_Crendetials_after_Paste.xml
+10_Execute_SQL/Execute_SQL_Copied_from_2026_wrong Crendetials_on_Paste.fmscript
+10_Execute_SQL/Execute_SQL_Copied_from_2026_wrong Crendetials_on_Paste.xml
+10_Execute_SQL/Execute_SQL_Result_2025.fmscript
+10_Execute_SQL/Execute_SQL_Result_2026.fmscript
+10_Execute_SQL/Execute_SQL_Source_2025.xml
+10_Execute_SQL/Execute_SQL_Source_2026.xml
+10_Execute_SQL/Execute_SQL_pasted_from_2025_Result.fmscript
+10_Execute_SQL/Execute_SQL_pasted_from_2025_Result.xml
+```
 
 ### Bug one — you say "don't save my credentials", FileMaker 2026 saves them anyway
 
@@ -1072,10 +1164,30 @@ The two steps where we saw it — each with its own reproducer file:
 
 Set Zoom Level's **Custom** option is new in FileMaker 2026: it stores a zoom calculation as a new value on the existing `<Zoom>` element. Because `<Zoom>` is an element FileMaker 2025 already knows, when a 2026-authored step is copied under 2025 the Custom zoom calculation **passes through 2025's parser as an opaque string and survives into the 2025 clipboard** — even though 2025 has no Custom option to show it in. A 2025 developer sees nothing (the interface offers no Custom zoom), pasting the clipboard back into 2025 does nothing, and the value is still safe in the file for when it is next opened in 2026. Only a tool reading the clipboard directly would notice the leaked calculation; ai2fm handles it on our side. Real bug, zero user impact — documented, not filed.
 
+### The files
+
+```
+16_Set_Zoom_Level/16_Set_Zoom_Level_2025.fmp12
+16_Set_Zoom_Level/16_Set_Zoom_Level_2026.fmp12
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025.xml
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025_Pasted_from_2026.xml
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2026.xml
+```
+
 <a id="bug-17"></a>
 ### Bug 17 — Re-Login (step 138) — a 2026 file reference leaks into the 2025 clipboard
 
 Re-Login's data-source file reference is new in FileMaker 2026, and it rides in the same way: copied under FileMaker 2025, the 2026 `<FileReference>` data **leaks into the 2025 clipboard** because it travels inside structure 2025's parser passes through opaquely. As with Set Zoom Level, the 2025 interface shows nothing, pasting back into 2025 does nothing, and the file itself is unharmed — the feature returns intact when the file is reopened in 2026. Only a direct clipboard reader sees the leak; ai2fm absorbs it. Same class, same verdict: real bug, no user impact, documented rather than reported.
+
+### The files
+
+```
+17_Re_Login/17_Re_Login_2025.fmp12
+17_Re_Login/17_Re_Login_2026.fmp12
+17_Re_Login/Re-Login_2025_Clipboard.xml
+17_Re_Login/Re-Login_2025_Pasted_from_2026_Clipboard.xml
+17_Re_Login/Re-Login_2026_Clipboard.xml
+```
 
 ---
 
