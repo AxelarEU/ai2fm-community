@@ -831,11 +831,23 @@ Print PDF [ From: Source ; Restore: Adobe PDF ; Records being browsed ; All Page
 
 That `#blob` is the complete `<PrintSettings>` block, compressed. On the way back into FileMaker it is restored byte-identically. Printer, paper, tray, duplex, N-up, watermark, quality, and every driver-private option we never decode — all of it returns exactly as FileMaker stored it.
 
-The readable values in front of the blob are decoded for you and for any AI reading the script. They are information, not controls, and every step says so:
+The readable values in front of the blob are decoded for you and for any AI reading the script. They are information, not controls.
 
-```
+### What ai2fm tells you — on both sides of the round-trip
+
+Coming **out** of FileMaker (FM → text), every Print Setup, Print, and Print PDF step is prefixed with:
+
+```fmscript
 # ℹ️ The printer and page setup for this step are preserved exactly (carried in the PageFormat/PrintSettings block) and restore byte-for-byte on paste. The readable values below are for reference only — to change any print option, use FileMaker's Print Setup dialog after pasting.
 ```
+
+Going **back into** FileMaker (text → FM), the same three steps are prefixed with:
+
+```fmscript
+# ℹ️ The original printer and page setup were preserved exactly and restored on paste, byte-for-byte. The readable values are for reference only — if you edited them they do not change the setup; change print options in FileMaker's Print Setup dialog.
+```
+
+Two notes, one on each side of the round-trip, on all three page-setup steps. They used to be warnings, because we could not rebuild the driver block and had to ask you to open Print Setup and print a test page. They are notes now, because we no longer rebuild anything — we carry the original bytes and give them back. What they tell you is what is true: the setup is safe, and the readable values are there to be read, not edited.
 
 ### The point
 
@@ -866,6 +878,22 @@ FileMaker's three serializations disagree. We no longer have to choose between t
 13_Print_PDF_2/Print_PDF_WIN_2.fmscript
 13_Print_PDF_2/Print_PDF_WIN_Clipboard_2.xml
 ```
+
+### What ai2fm tells you — on both sides of the round-trip
+
+Coming **out** of FileMaker (FM → text), every Print Setup, Print, and Print PDF step is prefixed with:
+
+```fmscript
+# ℹ️ The printer and page setup for this step are preserved exactly (carried in the PageFormat/PrintSettings block) and restore byte-for-byte on paste. The readable values below are for reference only — to change any print option, use FileMaker's Print Setup dialog after pasting.
+```
+
+Going **back into** FileMaker (text → FM), the same three steps are prefixed with:
+
+```fmscript
+# ℹ️ The original printer and page setup were preserved exactly and restored on paste, byte-for-byte. The readable values are for reference only — if you edited them they do not change the setup; change print options in FileMaker's Print Setup dialog.
+```
+
+Two notes, one on each side of the round-trip, on all three page-setup steps. They used to be warnings, because we could not rebuild the driver block and had to ask you to open Print Setup and print a test page. They are notes now, because we no longer rebuild anything — we carry the original bytes and give them back. What they tell you is what is true: the setup is safe, and the readable values are there to be read, not edited.
 
 ### The point
 
@@ -906,6 +934,22 @@ The `#blob` is the whole `<PageFormat>` block, restored byte-identically on past
 
 The readable values are decoded from that block. Getting them right took real work, because Windows printers do not agree on where the scale lives: Adobe and Xerox use the standard Windows field, HP keeps it in a named table of its own, and EPSON, Canon and Brother each hide it somewhere different in their private data. Zebra, OneNote and Microsoft Print to PDF have no scaling at all. Every one of those was confirmed against the printer's own driver dialog. On Mac the values come from named keys in the print ticket, and `Any Printer` is a real setting — it means the page setup is not bound to a specific printer.
 
+### What ai2fm tells you — on both sides of the round-trip
+
+Coming **out** of FileMaker (FM → text), every Print Setup, Print, and Print PDF step is prefixed with:
+
+```fmscript
+# ℹ️ The printer and page setup for this step are preserved exactly (carried in the PageFormat/PrintSettings block) and restore byte-for-byte on paste. The readable values below are for reference only — to change any print option, use FileMaker's Print Setup dialog after pasting.
+```
+
+Going **back into** FileMaker (text → FM), the same three steps are prefixed with:
+
+```fmscript
+# ℹ️ The original printer and page setup were preserved exactly and restored on paste, byte-for-byte. The readable values are for reference only — if you edited them they do not change the setup; change print options in FileMaker's Print Setup dialog.
+```
+
+Two notes, one on each side of the round-trip, on all three page-setup steps. They used to be warnings, because we could not rebuild the driver block and had to ask you to open Print Setup and print a test page. They are notes now, because we no longer rebuild anything — we carry the original bytes and give them back. What they tell you is what is true: the setup is safe, and the readable values are there to be read, not edited.
+
 ### The point
 
 We decode as much as we honestly can, and we preserve everything regardless. If a printer ever appears whose layout we do not recognise, the readable line will say less — and the setup will still come back exactly as it went in.
@@ -942,6 +986,22 @@ Print [ Restore: canon ; Records being browsed ; All Pages ; Collate: On ; Scale
 Print also carries what is printed — records, page range, copies, collate — and those round-trip exactly.
 
 Scaling reads differently on the two platforms because the two dialogs are different. Windows gives a percentage, or a mode name when the driver is set to fit rather than a number. Mac's Print dialog has no percentage here: it has *Scale to Fit Paper Size* with a destination paper and a *Scale Down Only* checkbox, and that is what we show.
+
+### What ai2fm tells you — on both sides of the round-trip
+
+Coming **out** of FileMaker (FM → text), every Print Setup, Print, and Print PDF step is prefixed with:
+
+```fmscript
+# ℹ️ The printer and page setup for this step are preserved exactly (carried in the PageFormat/PrintSettings block) and restore byte-for-byte on paste. The readable values below are for reference only — to change any print option, use FileMaker's Print Setup dialog after pasting.
+```
+
+Going **back into** FileMaker (text → FM), the same three steps are prefixed with:
+
+```fmscript
+# ℹ️ The original printer and page setup were preserved exactly and restored on paste, byte-for-byte. The readable values are for reference only — if you edited them they do not change the setup; change print options in FileMaker's Print Setup dialog.
+```
+
+Two notes, one on each side of the round-trip, on all three page-setup steps. They used to be warnings, because we could not rebuild the driver block and had to ask you to open Print Setup and print a test page. They are notes now, because we no longer rebuild anything — we carry the original bytes and give them back. What they tell you is what is true: the setup is safe, and the readable values are there to be read, not edited.
 
 ### The point
 
