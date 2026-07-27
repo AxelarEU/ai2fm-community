@@ -794,57 +794,52 @@ This is the same pair of FileMaker 2026 bugs as Execute SQL, reached through a d
 <a id="bug-12"></a>
 ## Bug 12 — Print PDF (step 242) — the page setup is unstable: three serializations of the same two steps disagree
 
-**The bug.** Print PDF is new in FileMaker 2026, and it captures a page setup — orientation and paper size. Author two Print PDF steps as **Landscape / Letter**, save, and copy them, and FileMaker produces three serializations of those two saved, unedited steps that **disagree with each other and with what you authored**. The two steps are identical apart from the With-dialog flag, yet they do not come out the same.
+**The situation.** Two Print PDF steps, authored identically as Landscape/Letter, saved, never edited. Read them back through FileMaker's own three serializations and all three disagree — with each other and with what was authored. The clipboard says one thing, the SaXML another, the printed output a third.
 
-### The files
+### The files we submitted to Claris
 
-Open **`Print_PDF_Bug_Report.fmp12`** on FileMaker Pro 2026 (Windows). Two Print PDF steps, both set to Landscape / Letter, saved and not edited. Copy them, export the SaXML, and look at the printed output — three views of the same two steps.
-
-### What FileMaker gives us
-
-Copy the steps and read the three sources. For two steps you authored identically:
-
-| Source | step 0 | step 1 |
-|---|---|---|
-| Script Workspace (authored) | Landscape / Letter | Landscape / Letter |
-| Clipboard XML (`<PlatformData W_PM>` DEVMODE) | Landscape / Letter | **Portrait / A4** |
-| SaXML `<PageSetup>` | Portrait / Letter | Portrait / Letter |
-| Printed output | Portrait / 8.5" × 11" | Portrait / 8.5" × 11" |
-
-The page setup lives in the clipboard as a binary Windows DEVMODE blob inside `<PlatformData PlatformType="W_PM">`. Two bytes decide it: **orientation** at byte 77 (`1` = portrait, `2` = landscape) and **paper size** at byte 79 (`1` = Letter, `9` = A4). Step 0 reads `2` / `1` — Landscape / Letter, the value you set. Step 1 reads `1` / `9` — Portrait / A4, which nobody set. Two identical steps, two different page setups, in a single copy. And step 1's blob is internally inconsistent: the paper-size code says A4 while other measurements in the same blob still read Letter.
-
-The other two sources agree only in being wrong. The SaXML `<PageSetup>` reads `<Orientation name="Portrait" value="0">` with a Letter `<size>` for **both** steps — the authored Landscape is nowhere in it. The printed output renders Portrait / 8.5" × 11" for both.
-
-### What ai2fm does — it reads the one honest source, and warns you in both directions
-
-ai2fm decodes the DEVMODE blob directly rather than trusting the SaXML or the printout, because the blob is the least-unreliable of the three: it is the only source that ever carries the authored Landscape at all. Reading the clipboard above, it emits each step as FileMaker actually serialized it:
-
-```fmscript
-Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: On ]
-Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Portrait ; Paper size: 8.26" x 11.69" ; With dialog: Off ]
+```
+12_Print_PDF/Submitted_to_Claris/Print_PDF_Bug_Report.fmp12
+12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_ClipBoard.xml
+12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_SaXML.xml
+12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_Print.txt
 ```
 
-It cannot invent a value the blob does not hold — step 1 genuinely encodes Portrait / A4, so that is what it shows — but it does not silently discard the authored Landscape the way the SaXML and the printout do.
+Open `Print_PDF_Bug_Report.fmp12` and compare the three exports against each other. That is the bug.
 
-Because FileMaker's own values cannot be trusted here, ai2fm does not stop at reading them faithfully — it **warns you in both directions**, so you are never left assuming a page setup is right when FileMaker may have serialized it wrong.
+### The files that show how we protect you
 
-Coming **out** of FileMaker (FM → text), every Print Setup, Print, and Print PDF step is prefixed with:
+```
+12_Print_PDF/WIN/12_Print_PDF_WIN_2026.fmp12
+12_Print_PDF/WIN/Print_PDF_WIN.fmscript
+12_Print_PDF/WIN/Print_PDF_WIN_Clipboard.xml
 
-```fmscript
-# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
+12_Print_PDF/MAC/12_Print_PDF_MAC_2026.fmp12
+12_Print_PDF/MAC/Print_PDF_MAC.fmscript
+12_Print_PDF/MAC/Print_PDF_MAC_Clipboard.xml
 ```
 
-Going **back into** FileMaker (text → FM), the same three steps are prefixed with:
+Open the `.fmp12`, copy any Print PDF step, and read it with ai2fm. The `.fmscript` files are exactly what you will get.
+
+### What ai2fm does — it preserves the whole thing, byte for byte
+
+We stopped trying to rebuild the page setup and preserved it instead. The entire driver block — the part FileMaker serializes inconsistently — is carried verbatim inside the step text:
 
 ```fmscript
-# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
+Print PDF [ From: Source ; Restore: Adobe PDF ; Records being browsed ; All Pages ; Collate: Off ; Orientation: Portrait ; Paper size: 8.27" x 11.69" ; Scale: 65% ; With dialog: On ; PrintSettings: #blob eJzt… ]
 ```
 
-Two warnings, one on each side of the round-trip, on all three page-setup steps. Where FileMaker is silently inconsistent, ai2fm makes the instability visible and tells you exactly how to confirm the truth — open Print Setup, and print a test page.
+That `#blob` is the complete `<PrintSettings>` block, compressed. On the way back into FileMaker it is restored byte-identically. Printer, paper, tray, duplex, N-up, watermark, quality, and every driver-private option we never decode — all of it returns exactly as FileMaker stored it.
+
+The readable values in front of the blob are decoded for you and for any AI reading the script. They are information, not controls, and every step says so:
+
+```
+# ℹ️ The printer and page setup for this step are preserved exactly (carried in the PageFormat/PrintSettings block) and restore byte-for-byte on paste. The readable values below are for reference only — to change any print option, use FileMaker's Print Setup dialog after pasting.
+```
 
 ### The point
 
-This is the only bug on this page where no serialization can be trusted, because they disagree. The value you set survives in one of the three — the clipboard blob — and not in the other two. Since the SaXML is the format migration tooling reads, a step deliberately set to Landscape can migrate as Portrait, and two steps you built the same way can migrate differently. The fix is for FileMaker to persist and serialize the page setup deterministically, so all three views agree with each other and with what you authored.
+FileMaker's three serializations disagree. We no longer have to choose between them: we carry the original bytes and hand them back untouched. The instability is still FileMaker's — the reproducer above is filed — but it can no longer cost you a print setup.
 
 *Reported to Claris — [Bug Report (1 of 2): FileMaker Pro 2026 Print PDF page setup is unstable/inconsistent — the Clipboard XML of the same two saved steps disagrees with SaXML, the printed output, and the authored Landscape/Letter](https://community.claris.com/en/s/question/0D5Vy00002rqoRFKAY/bug-report-1-of-2-filemaker-pro-2026-print-pdf-page-setup-is-unstableinconsistent-clipboard-xml-serialization-of-the-same-two-saved-steps-disagree-with-saxml-and-printed-output-and-with-the-authored-landscapeletter).*
 
@@ -853,45 +848,28 @@ This is the only bug on this page where no serialization can be trusted, because
 <a id="bug-13"></a>
 ## Bug 13 — Print PDF (step 242), continued — a clean save fixes the clipboard, but not the SaXML or the printout
 
-**The bug.** The first report showed all three serializations disagreeing. This one shows what is left after you re-save the steps cleanly: the clipboard corrects itself, but FileMaker's canonical SaXML export and its printed output **still get one of the two identical steps wrong** — Portrait / A4 instead of the saved Landscape / Letter, on step 0 but not step 1.
+**The situation.** Re-save the steps cleanly and the clipboard becomes correct — both steps read Landscape/Letter as authored. The SaXML and the printed output still do not: step 0 comes out Portrait/A4 while step 1 is correct. Same file, same save, one step right and one wrong in FileMaker's own canonical export.
 
-### The files
+### The files we submitted to Claris
 
-Open **`Print_PDF_Bug_Report_2.fmp12`** on FileMaker Pro 2026 (Windows). The same two Print PDF steps, both re-saved cleanly to Landscape / Letter, identical apart from the With-dialog flag (step 0 On, step 1 Off).
-
-### What FileMaker gives us
-
-| Source | step 0 | step 1 |
-|---|---|---|
-| Script Workspace (authored) | Landscape / Letter | Landscape / Letter |
-| Clipboard XML (`<PlatformData W_PM>` DEVMODE) | Landscape / Letter ✓ | Landscape / Letter ✓ |
-| SaXML `<PageSetup>` | **Portrait / A4 ✗** | Landscape / Letter ✓ |
-| Printed output | **Portrait / 8.26" × 11.69" ✗** | Landscape / 8.5" × 11" ✓ |
-
-The clean re-save fixed the clipboard: both DEVMODE blobs now read orientation `2` (Landscape) and paper `1` (Letter) — correct, and consistent between the two steps. But the SaXML tells a different story per step. Step 0 serializes as `<Orientation name="Portrait" value="0">` with `<size width="826.39" height="1169.44">` — Portrait, and those dimensions are A4, not Letter. Step 1 serializes as `<Orientation name="Landscape" value="2">` with `<size width="850" height="1100">` — Landscape, Letter, correct. The printout matches the SaXML: step 0 prints Portrait / A4, step 1 prints Landscape / Letter. Same authoring, same save, one step right and one step wrong, in the same export.
-
-### What ai2fm does — it reads the corrected clipboard, gets both steps right, and still warns
-
-Because ai2fm decodes the clipboard blob, and the clean save made the clipboard correct, it emits both steps as Landscape / Letter — the value you saved — and it still prefixes each one with the warning, exactly as it does when the clipboard is wrong. Coming **out** of FileMaker (FM → text):
-
-```fmscript
-# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
-Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: On ]
-# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
-Print PDF [ From: Source ; Source: $theSource ; Restore: EPSON L365 Series ; ... ; Orientation: Landscape ; Paper size: 8.5" x 11" ; With dialog: Off ]
+```
+13_Print_PDF_2/Submitted_to_Claris/Print_PDF_Bug_Report_2.fmp12
+13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_Clipboard_2.xml
+13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_SaXML_2.xml
+13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_Print_2.txt
 ```
 
-And going **back into** FileMaker (text → FM), the same warning-on-every-step is added the other way:
+### The files that show how we protect you
 
-```fmscript
-# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
 ```
-
-For this file ai2fm is more faithful to what you authored than FileMaker's own canonical serialization, which still mis-serializes step 0 — and it *still* warns you both ways regardless. That is deliberate: from the developer's chair there is no way to tell the first report's file (clipboard wrong) from this one (clipboard right) without checking, and the printout here is *still* wrong on step 0. ai2fm does not gamble on which case you are in. It reads the honest source, prints the truth, and both directions carry the note telling you to open Print Setup and print a test page before you rely on it. The instability is FileMaker's; the visibility is ai2fm's.
+13_Print_PDF_2/13_Print_PDF_WIN_2.fmp12
+13_Print_PDF_2/Print_PDF_WIN_2.fmscript
+13_Print_PDF_2/Print_PDF_WIN_Clipboard_2.xml
+```
 
 ### The point
 
-The defect here is not in the clipboard — a clean save repairs that — it is in the SaXML and printed-output path, and it is per-step and inconsistent. Because migration tooling reads the SaXML, a Print PDF step you deliberately set to Landscape / Letter can migrate and print as Portrait / A4, silently, for some steps and not others in the same script. FileMaker needs to serialize the page setup deterministically for every step, not just the ones that happen to come out right.
+This one matters beyond print. The clipboard — the source ai2fm reads — is the one that came out right after a clean save, while FileMaker's own migration export did not. Reading the clipboard directly, and preserving its bytes, is what makes the difference here.
 
 *Reported to Claris — [Bug Report (2 of 2): FileMaker Pro 2026 — after a clean save the Clipboard XML is correct but SaXML and the printed output still mis-serialize one of two identical Print PDF steps (Portrait/A4 instead of the saved Landscape/Letter)](https://community.claris.com/en/s/question/0D5Vy00002rqw10KAA/bug-report-2-of-2-filemaker-pro-2026-after-a-clean-save-the-clipboard-xml-is-correct-but-saxml-and-the-printed-output-still-misserialize-one-of-two-identical-print-pdf-steps-portraita4-instead-of-the-saved-landscapeletter).*
 
@@ -900,58 +878,86 @@ The defect here is not in the clipboard — a clean save repairs that — it is 
 <a id="bug-14"></a>
 ## Bug 14 — Print Setup (step 42) — the same unstable page setup, and how we protect you
 
-**The situation.** Print PDF is not alone. **Print Setup** captures the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block, and it inherits the very same instability documented above for Print PDF: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode Print Setup from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
+**The situation.** Print Setup carries the very same page setup through the very same driver block, and inherits the very same instability documented in Bugs 12 and 13.
 
-But "we did our best to decode it" is not the same as "we can guarantee it," and on this step nobody can. So we made a deliberate decision: rather than hand you a page setup that *looks* authoritative when FileMaker itself may be inconsistent, **we warn you on every Print Setup step, in both directions of the round-trip.**
+### The files
 
-### What ai2fm does — it warns both ways, always
+```
+14_Print_Setup/WIN/14_Print_Setup_WIN_2026.fmp12
+14_Print_Setup/WIN/Print_Setup_WIN.fmscript
+14_Print_Setup/WIN/Print_Setup_WIN_Clipboard.xml
 
-Coming **out** of FileMaker (FM → text), every Print Setup step is prefixed with:
-
-```fmscript
-# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
+14_Print_Setup/MAC/14_Print_Setup_MAC_2026.fmp12
+14_Print_Setup/MAC/Print_Setup_MAC.fmscript
+14_Print_Setup/MAC/Print_Setup_MAC_Clipboard.xml
 ```
 
-Going **back into** FileMaker (text → FM), the same step is prefixed with:
+### What ai2fm does — it preserves the whole thing, byte for byte
 
 ```fmscript
-# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
+# WINDOWS
+Print Setup [ Restore: HP LaserJet MFP M430-431 PCL-6 ; Orientation: Portrait ; Paper size: 8.5" x 13.39" ; Scale: 100% ; With dialog: Off ; PageFormat: #blob eJzt… ]
+
+# MAC
+Print Setup [ Restore: Any Printer ; Orientation: Portrait ; Paper size: 7.75" x 10.75" ; Scale: 50% ; With dialog: Off ; PageFormat: #blob eJzt… ]
 ```
 
-These are the identical two warnings we attach to Print PDF, applied to Print Setup for the same reason: the step shares the instability, so it shares the protection. Both fire unconditionally — we do not try to guess whether a given copy happened to come out right, because from the developer's chair there is no way to tell, and betting on it is exactly the risk we refuse to take on your behalf.
+The `#blob` is the whole `<PageFormat>` block, restored byte-identically on paste.
+
+The readable values are decoded from that block. Getting them right took real work, because Windows printers do not agree on where the scale lives: Adobe and Xerox use the standard Windows field, HP keeps it in a named table of its own, and EPSON, Canon and Brother each hide it somewhere different in their private data. Zebra, OneNote and Microsoft Print to PDF have no scaling at all. Every one of those was confirmed against the printer's own driver dialog. On Mac the values come from named keys in the print ticket, and `Any Printer` is a real setting — it means the page setup is not bound to a specific printer.
 
 ### The point
 
-We would rather be honest than look authoritative. On Print Setup we did the hard part (decode the driver blob and recover the real values), and we still tell you, on the way out and on the way back in, to open Print Setup and print a test page before you rely on the result. The instability is FileMaker's; the two-way warning is ours. The two Print PDF reports above are the filed, reproducible evidence of that instability, which Print Setup shares.
+We decode as much as we honestly can, and we preserve everything regardless. If a printer ever appears whose layout we do not recognise, the readable line will say less — and the setup will still come back exactly as it went in.
 
 ---
 
 <a id="bug-15"></a>
 ## Bug 15 — Print (step 43) — the same unstable page setup, and how we protect you
 
-**The situation.** **Print** captures the very same page setup — printer, orientation, paper size, scaling — through the very same Windows driver block as Print Setup and Print PDF, and it inherits the very same instability documented above: FileMaker can serialize the setup to the clipboard, the SaXML, and the printout in ways that disagree with each other and with what you authored. We decode Print from the one source that is least-unreliable — the clipboard's `<PlatformData W_PM>` DEVMODE blob — and we recover as much of the real setup as the blob honestly holds: the printer name, orientation, paper size, and scale.
+**The situation.** Print carries the same page setup through the same driver block as Print Setup and Print PDF, and inherits the same instability.
 
-As with Print Setup, decoding it well is not the same as guaranteeing it, and on this step nobody can. So we make the same deliberate decision: rather than hand you a page setup that *looks* authoritative when FileMaker itself may be inconsistent, **we warn you on every Print step, in both directions of the round-trip.**
+### The files
 
-### What ai2fm does — it warns both ways, always
+```
+15_Print/WIN/15_Print_WIN_2026.fmp12
+15_Print/WIN/Print_WIN.fmscript
+15_Print/WIN/Print_WIN_Clipboard.xml
 
-Coming **out** of FileMaker (FM → text), every Print step is prefixed with:
-
-```fmscript
-# ⚠️ This step carries printer and page-setup settings in a driver-specific block that ai2fm cannot fully rebuild. After pasting into FileMaker, open the step's Print Setup and confirm the printer, paper, orientation, scaling, and any other options are correct.
+15_Print/MAC/15_Print_MAC_2026.fmp12
+15_Print/MAC/Print_MAC.fmscript
+15_Print/MAC/Print_MAC_Clipboard.xml
 ```
 
-Going **back into** FileMaker (text → FM), the same step is prefixed with:
+### What ai2fm does — it preserves the whole thing, byte for byte
 
 ```fmscript
-# ⚠️ These printer and page-setup values come from the clipboard, which FileMaker may serialize inconsistently for this step — they can disagree with the FileMaker Workspace display and with the actual printout. Print a test page to confirm the real setup.
+# WINDOWS
+Print [ Restore: Brother HL-EX470 series ; Records being browsed ; All Pages ; Collate: Off ; Orientation: Portrait ; Paper size: 8.27" x 11.69" ; Scale: Fit to Paper Size ; With dialog: Off ; PrintSettings: #blob eJzt… ]
+
+# MAC
+Print [ Restore: canon ; Records being browsed ; All Pages ; Collate: On ; Scale to fit: 4x6 ; Scale down only ; With dialog: Off ; PrintSettings: #blob eJzt… ]
 ```
 
-These are the identical two warnings we attach to Print Setup and Print PDF, applied to Print for the same reason: the step shares the instability, so it shares the protection. Both fire unconditionally — we do not try to guess whether a given copy happened to come out right, because from the developer's chair there is no way to tell, and betting on it is exactly the risk we refuse to take on your behalf.
+Print also carries what is printed — records, page range, copies, collate — and those round-trip exactly.
+
+Scaling reads differently on the two platforms because the two dialogs are different. Windows gives a percentage, or a mode name when the driver is set to fit rather than a number. Mac's Print dialog has no percentage here: it has *Scale to Fit Paper Size* with a destination paper and a *Scale Down Only* checkbox, and that is what we show.
 
 ### The point
 
-We would rather be honest than look authoritative. On Print we did the hard part (decode the driver blob and recover the real values), and we still tell you, on the way out and on the way back in, to open Print Setup and print a test page before you rely on the result. The instability is FileMaker's; the two-way warning is ours. The two Print PDF reports above are the filed, reproducible evidence of that instability, which Print shares.
+Same protection as Print Setup: everything preserved byte-for-byte, the readable part decoded as far as it honestly goes.
+
+### One more thing, on all three print steps — the dialogs misreport
+
+**FileMaker's print dialogs display values that are not what the step stores.** Three confirmed cases:
+
+- **Windows, the settings wheel** — shows the last-used printer settings for every step, not the settings of the step you opened.
+- **Mac, page range** — a step that stores `Pages: 7 to 90` shows *All Pages* with the range boxes greyed out at 1 and 1.
+- **Mac, Destination Paper Size** — the closed popup reads *US Letter* while the checkmark inside the popup, and the Paper Handling summary line above it, both correctly read *4x6*. The same dialog contradicts itself on screen.
+
+None of these is data loss. FileMaker's own copy, paste and duplicate all keep the values, and ai2fm's round-trip returns them byte-identically. Only the display is wrong.
+
+**So do not check a print step by opening its dialog.** Expand the Paper Handling summary, or open the popup and look at which item is ticked. Both show the truth.
 
 ---
 
