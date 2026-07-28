@@ -721,14 +721,10 @@ Most entries on this page are about information going missing. This one is about
 
 ```
 9_Set_Dictionary/9_DictionaryBug.fmp12
-9_Set_Dictionary/Set_Dictionary_Result_2025.fmscript
-9_Set_Dictionary/Set_Dictionary_Result_2025.xml
-9_Set_Dictionary/Set_Dictionary_Result_2026.fmscript
-9_Set_Dictionary/Set_Dictionary_Result_2026.xml
-9_Set_Dictionary/Set_Dictionary_Source_2025.fmscript
-9_Set_Dictionary/Set_Dictionary_Source_2025.xml
-9_Set_Dictionary/Set_Dictionary_Source_2026.fmscript
-9_Set_Dictionary/Set_Dictionary_Source_2026.xml
+9_Set_Dictionary/winsoft.xml
+9_Set_Dictionary/winsoft.fmscript
+9_Set_Dictionary/winsoft_SaXML.xml
+9_Set_Dictionary/winsoft_Print.fmscript
 ```
 
 ### Why it happens
