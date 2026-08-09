@@ -67,7 +67,7 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 | 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | Still present | [#bug-6](#bug-6) |
 | 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | **Fixed** | [#bug-7](#bug-7) |
 | 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | Still present | [#bug-8](#bug-8) |
-| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | With Claris Testing/Dev | [#bug-9](#bug-9) |
+| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | WinSoft build defect — Claris investigating | [#bug-9](#bug-9) |
 | 10 | Execute SQL (117) | Two ways FileMaker 2026 breaks an ODBC connection | Still present | [#bug-10](#bug-10) |
 | 11 | Import Records ODBC (35) | The same two bugs, on your data imports | Still present | [#bug-11](#bug-11) |
 | 12 | Print PDF (242) | Page setup unstable — three serializations disagree | Still present | [#bug-12](#bug-12) |
@@ -817,7 +817,7 @@ There is no clean format to recover from. The clipboard, the printed output and 
 
 The fix belongs to WinSoft: add the missing value-to-name entries for the dictionaries they ship beyond the standard thirteen. The 1–13 table is already correct.
 
-*Reported to **WinSoft** — ticket [rt2.winsoft.fr #1683], where WinSoft reproduced and confirmed all three failure modes on the ME build, with their own screenshots. Also posted to the Claris community so other users of the localized builds can find it: [Bug Report: WinSoft (ME/CE localized) FileMaker builds corrupt Set Dictionary's language on copy/print/SaXML](https://community.claris.com/en/s/question/0D5Vy00002uuapSKAQ/bug-report-winsoft-mece-localized-filemaker-builds-corrupt-set-dictionarys-language-on-copyprintsaxml).*
+*Reported to **WinSoft** — ticket [rt2.winsoft.fr #1683], where WinSoft reproduced and confirmed all three failure modes on the ME build, with their own screenshots. **Claris is investigating too:** although this is a localized-build defect rather than their own, Claris forwarded the report to their Testing and Development teams (2026-08-06) to check whether anything in the version of FileMaker Pro they support needs correcting. Also posted to the Claris community so other users of the localized builds can find it: [Bug Report: WinSoft (ME/CE localized) FileMaker builds corrupt Set Dictionary's language on copy/print/SaXML](https://community.claris.com/en/s/question/0D5Vy00002uuapSKAQ/bug-report-winsoft-mece-localized-filemaker-builds-corrupt-set-dictionarys-language-on-copyprintsaxml).*
 
 ---
 
