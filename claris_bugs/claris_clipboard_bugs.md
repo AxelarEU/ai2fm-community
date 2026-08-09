@@ -1294,15 +1294,6 @@ Re-Login's data-source file reference is new in FileMaker 2026, and it rides in 
 17_Re_Login/Re-Login_2026_Script_Workspace_SHOWS_file_target_Current_File_and_named_file_MAC_26.02.png
 ```
 
----
-
-## Community workaround
-
-Takahata-san ([@stbison](https://github.com/stbison)) took the time to work through these same FileMaker 2026 clipboard bugs and write up a manual workaround — a practical option for anyone not using ai2fm. Worth a read, and our thanks for the effort:
-
-- [Silent-drop bugs in FileMaker 2026 — workaround strategy](https://gist.github.com/stbison/1d9b46ec906c600fc3c02d0746f95078)
-
----
 
 ### Seen on screen — 2026 above, 2025 below
 
@@ -1315,3 +1306,11 @@ Paste the same steps into FileMaker 2025 and the target is not drawn at all — 
 ![FileMaker 2025 Script Workspace showing no file target, though the data is in the clipboard](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/screenshots/Re-Login_2025_Script_Workspace_SHOWS_NOTHING_though_FileReference_data_IS_in_the_clipboard_MAC_22.07.png)
 
 **The data is still there.** The `<FileReference>` elements are present in the 2025 clipboard — 2025 has no interface for a 2026 feature, so it shows nothing. Pasting back into 2025 does nothing, the file is unharmed, and the feature returns intact when the file is reopened in 2026.
+
+---
+
+## Community workaround
+
+Takahata-san ([@stbison](https://github.com/stbison)) took the time to work through these same FileMaker 2026 clipboard bugs and write up a manual workaround — a practical option for anyone not using ai2fm. Worth a read, and our thanks for the effort:
+
+- [Silent-drop bugs in FileMaker 2026 — workaround strategy](https://gist.github.com/stbison/1d9b46ec906c600fc3c02d0746f95078)
