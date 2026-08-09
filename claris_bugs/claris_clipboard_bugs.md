@@ -5,7 +5,7 @@ title: "FileMaker Clipboard Bugs — verified, with reproducible test files"
 
 # FileMaker Clipboard Bugs — verified, with reproducible test files
 
-*Published by ai2fm · companion to the v2.5 release · last updated 2026-07-28*
+*Published by ai2fm · companion to the v2.5 release · last updated 2026-08-09*
 
 During the R&D for **ai2fm v2.5** we found, documented and reported to Claris International Inc. a set of bugs in FileMaker's clipboard serialisation. This page is the account of each one — but unlike a changelog, **every claim here is backed by files you can download and reproduce yourself.**
 
@@ -20,7 +20,7 @@ Open the file, copy the same step in your own FileMaker, and you will get the sa
 
 ### Download the test suite
 
-**[⬇ Bugs_Test_Suite.zip](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/Bugs_Test_Suite.zip)** — 5.4 MB, every file referenced on this page.
+**[⬇ Bugs_Test_Suite.zip](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/Bugs_Test_Suite.zip)** — 5.9 MB, every file referenced on this page.
 
 All seventeen bug folders, the FileMaker files, the clipboard captures and the `.fmscript` results. Unzip it and the paths in each bug below are exactly the paths you will have on disk. Where a bug was tested on both platforms the folder has `WIN/` and `MAC/` subfolders; where we filed a report with Claris, the files we sent them are in `Submitted_to_Claris/`.
 
@@ -34,29 +34,48 @@ The FileMaker files open in FileMaker Pro 2025 or 2026 as their names say. Nothi
 
 ---
 
+## Status after FileMaker Pro 26.0.2 (re-verified 2026-08-09)
+
+FileMaker Pro **26.0.2** (26.0.2.212, 14 July 2026) states that it *"fixes issues relating to copying and pasting script steps in the Script Workspace."* Claris asked us to validate that. We did — **every bug on this page was re-captured and re-diffed on the new builds.**
+
+We tested on **FileMaker Pro 26.0.1.51 and 26.0.2.212 installed side by side**, plus FileMaker Pro 22.06 and 22.07, on macOS and Windows.
+
+**Two bugs are fixed. The other fourteen produce byte-identical clipboards on 26.0.2 — not one byte changed.**
+
+| Fixed in 26.0.2 | What changed in the clipboard |
+|---|---|
+| **[Bug 5](#bug-5)** — Perform RAG Action (219) | `<Field type="AddDataResponse">` is emitted again for (Async) add-data steps. Both the variable and the field form return. |
+| **[Bug 7](#bug-7)** — Configure Prompt Template (226) | `<ModelProvider>` carries `Google` again instead of being written empty. |
+
+For **Bugs 12 and 13** we re-ran the exact reproducer files we had submitted to Claris: they still reproduce **byte-for-byte** on 26.0.2.
+
+**If you are still on 26.0.1, nothing changes for you.** ai2fm keeps every warning and repair for both builds and picks the right behaviour from the shape of the clipboard it is given — there is no version marker in a FileMaker clipboard to switch on, so we detect the damage itself. A step copied on 26.0.1 is still warned about; the same step copied on 26.0.2 passes through clean.
+
+---
+
 ## Index — every bug, numbered and linkable
 
 Each bug below has a stable anchor. Our FileMaker reproducer files link straight to the bug they were built for — for example `…/claris_clipboard_bugs.html#bug-4` opens Bug 4.
 
-| # | Step | Bug | Link |
-|---|---|---|---|
-| 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | [#bug-1](#bug-1) |
-| 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | [#bug-2](#bug-2) |
-| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | [#bug-3](#bug-3) |
-| 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | [#bug-4](#bug-4) |
-| 5 | Perform RAG Action — Add Data (219) | Response Target dropped for (Async) sources | [#bug-5](#bug-5) |
-| 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | [#bug-6](#bug-6) |
-| 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | [#bug-7](#bug-7) |
-| 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | [#bug-8](#bug-8) |
-| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | [#bug-9](#bug-9) |
-| 10 | Execute SQL (117) | Two ways FileMaker 2026 breaks an ODBC connection | [#bug-10](#bug-10) |
-| 11 | Import Records ODBC (35) | The same two bugs, on your data imports | [#bug-11](#bug-11) |
-| 12 | Print PDF (242) | Page setup unstable — three serializations disagree | [#bug-12](#bug-12) |
-| 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | [#bug-13](#bug-13) |
-| 14 | Print Setup (42) | The same unstable page setup — we warn both ways | [#bug-14](#bug-14) |
-| 15 | Print (43) | The same unstable page setup — we warn both ways | [#bug-15](#bug-15) |
-| 16 | Set Zoom Level (97) | *Not filed* — 2026 Custom zoom leaks into the 2025 clipboard | [#bug-16](#bug-16) |
-| 17 | Re-Login (138) | *Not filed* — 2026 file reference leaks into the 2025 clipboard | [#bug-17](#bug-17) |
+| # | Step | Bug | Status on 26.0.2 | Link |
+|---|---|---|---|---|
+| 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | Still present | [#bug-1](#bug-1) |
+| 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | Still present | [#bug-2](#bug-2) |
+| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | Still present | [#bug-3](#bug-3) |
+| 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | Still present | [#bug-4](#bug-4) |
+| 5 | Perform RAG Action — Add Data (219) | Response Target dropped for (Async) sources | **Fixed** | [#bug-5](#bug-5) |
+| 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | Still present | [#bug-6](#bug-6) |
+| 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | **Fixed** | [#bug-7](#bug-7) |
+| 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | Still present | [#bug-8](#bug-8) |
+| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | With Claris Testing/Dev | [#bug-9](#bug-9) |
+| 10 | Execute SQL (117) | Two ways FileMaker 2026 breaks an ODBC connection | Still present | [#bug-10](#bug-10) |
+| 11 | Import Records ODBC (35) | The same two bugs, on your data imports | Still present | [#bug-11](#bug-11) |
+| 12 | Print PDF (242) | Page setup unstable — three serializations disagree | Still present | [#bug-12](#bug-12) |
+| 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | Still present | [#bug-13](#bug-13) |
+| 14 | Print Setup (42) | The same unstable page setup — we warn both ways | Still present | [#bug-14](#bug-14) |
+| 15 | Print (43) | The same unstable page setup — we warn both ways | Still present | [#bug-15](#bug-15) |
+| 16 | Set Zoom Level (97) | *Not filed* — 2026 Custom zoom leaks into the 2025 clipboard | Still present | [#bug-16](#bug-16) |
+| 17 | Re-Login (138) | *Not filed* — 2026 file reference leaks into the 2025 clipboard | Still present | [#bug-17](#bug-17) |
 
 ---
 
@@ -72,10 +91,14 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 1_Perform_Find_by_Natural_Language/1_Perform_Find_by_Natural_Language_2026.fmp12
 1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Corrected_AT_IDE_Result_2025.xml
 1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Corrected_at_IDE_Result_2025.fmscript
-1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2025.fmscript
-1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2026.fmscript
-1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2025.xml
-1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2026.xml
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2025.06.fmscript
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2025.07.fmscript
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2026.01.fmscript
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Result_2026.02.fmscript
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2025.06.xml
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2025.07.xml
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2026.01.xml
+1_Perform_Find_by_Natural_Language/Perform_Find_by_Natural_Language_Source_2026.02.xml
 ```
 
 ### What FileMaker gives us
@@ -166,16 +189,18 @@ The bug is FileMaker's; the loss is real; and ai2fm's job is to make the loss **
 ```
 2_Configure_AI_Account/2_Configure_AI_Account_2025.fmp12
 2_Configure_AI_Account/2_Configure_AI_Account_2026.fmp12
-2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025 copied from FM2026.fmscript
-2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025 copied from FM2026.xml
-2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2026 copied from FM2025.fmscript
-2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2026 copied from FM2025.xml
-2_Configure_AI_Account/Configure_AI_Account_Pastes correctly copied from IDE -> FM2025.fmscript
-2_Configure_AI_Account/Configure_AI_Account_Pastes correctly copied from IDE -> FM2026.fmscript
-2_Configure_AI_Account/Configure_AI_Account_Result_2025.fmscript
-2_Configure_AI_Account/Configure_AI_Account_Result_2026.fmscript
-2_Configure_AI_Account/Configure_AI_Account_Source_2025.xml
-2_Configure_AI_Account/Configure_AI_Account_Source_2026.xml
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025.06 copied from FM2026.01.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025.06 copied from FM2026.01.xml
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025.06 copied from FM2026.01_new.xml
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2025.06 copied from FM2026.02.xml
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2026.01 copied from FM2025.06.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Fails to paste at FM2026.01 copied from FM2025.06.xml
+2_Configure_AI_Account/Configure_AI_Account_Pastes correctly copied from IDE -> FM2025.06.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Pastes correctly copied from IDE -> FM2026.01.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Result_2025.06.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Result_2026.01.fmscript
+2_Configure_AI_Account/Configure_AI_Account_Source_2025.06.xml
+2_Configure_AI_Account/Configure_AI_Account_Source_2026.01.xml
 ```
 
 ### The two clipboards differ in one thing: the spelling
@@ -255,14 +280,16 @@ FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in eithe
 ```
 3_Configure_Machine_Learning_Model/3_Configure_Machine_Learning_Model_2025.fmp12
 3_Configure_Machine_Learning_Model/3_Configure_Machine_Learning_Model_2026.fmp12
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2025 copied from FM2026.fmscript
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2025 copied from FM2026.xml
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2026 copied from FM2025.fmscript
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2026 copied from FM2025.xml
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Result_2025.fmscript
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Result_2026.fmscript
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2025.xml
-3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2026.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2025.06 copied from FM2026.01.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2025.06 copied from FM2026.01.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2026.01 copied from FM2025.06.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Fails to paste at FM2026.01 copied from FM2025.06.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Result_2025.06.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Result_2026.01.fmscript
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2025.06.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2025.07.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2026.01.xml
+3_Configure_Machine_Learning_Model/Configure_Machine_Learning_Model_Source_2026.02.xml
 ```
 
 ### The two versions store the operation differently
@@ -333,11 +360,12 @@ FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step:
 ```
 4_Set_Data_File_Position/4_Set_Data_File_Position_2025.fmp12
 4_Set_Data_File_Position/4_Set_Data_File_Position_2026.fmp12
-4_Set_Data_File_Position/Set_Data_File_Position_Result_2025.fmscript
-4_Set_Data_File_Position/Set_Data_File_Position_Result_2025.xml
-4_Set_Data_File_Position/Set_Data_File_Position_Result_2026.fmscript
-4_Set_Data_File_Position/Set_Data_File_Position_Source_2025.xml
-4_Set_Data_File_Position/Set_Data_File_Position_Source_2026.xml
+4_Set_Data_File_Position/Set_Data_File_Position_Result_2025.06.fmscript
+4_Set_Data_File_Position/Set_Data_File_Position_Result_2025.06.xml
+4_Set_Data_File_Position/Set_Data_File_Position_Result_2026.01.fmscript
+4_Set_Data_File_Position/Set_Data_File_Position_Source_2025.06.xml
+4_Set_Data_File_Position/Set_Data_File_Position_Source_2026.01.xml
+4_Set_Data_File_Position/Set_Data_File_Position_Source_2026.02.xml
 ```
 
 ### What FileMaker gives us
@@ -430,9 +458,11 @@ FileMaker 2026 loses the New position the moment you copy the step, in a way not
 ```
 5_Perform_RAG_Action/5_Perform_RAG_Action_2025.fmp12
 5_Perform_RAG_Action/5_Perform_RAG_Action_2026.fmp12
-5_Perform_RAG_Action/Perform_RAG_Action_Result_2026.fmscript
+5_Perform_RAG_Action/Perform_RAG_Action_Result_2026.01.fmscript
+5_Perform_RAG_Action/Perform_RAG_Action_Result_2026.02.fmscript
 5_Perform_RAG_Action/Perform_RAG_Action_Result_Corrected_at_IDE_2026.fmscript
-5_Perform_RAG_Action/Perform_RAG_Action_Source_2026.xml
+5_Perform_RAG_Action/Perform_RAG_Action_Source_2026.01.xml
+5_Perform_RAG_Action/Perform_RAG_Action_Source_2026.02.xml
 5_Perform_RAG_Action/Perform_RAG_Action_Source_Corrected_at_IDE_2026.xml
 ```
 
@@ -512,12 +542,13 @@ FileMaker 2026 keeps the Add-Data Response Target for the synchronous sources an
 ```
 6_Read_from_Data_File/6_Read_from_Data_File_2025.fmp12
 6_Read_from_Data_File/6_Read_from_Data_File_2026.fmp12
-6_Read_from_Data_File/Read_from_Data_Created_in_2026_Opened_in_2025.xml
-6_Read_from_Data_File/Read_from_Data_Created_in_2026__Opened_in_2025_and_Corrected.xml
-6_Read_from_Data_File/Read_from_Data_File_Corrected_at_IDE_2026.fmscript
-6_Read_from_Data_File/Read_from_Data_File_Corrected_at_IDE_2026.xml
-6_Read_from_Data_File/Read_from_Data_File_Result_2026.fmscript
-6_Read_from_Data_File/Read_from_Data_File_Source_2026.xml
+6_Read_from_Data_File/Read_from_Data_Created_in_2026.01_Opened_in_2025.06.xml
+6_Read_from_Data_File/Read_from_Data_Created_in_2026.01__Opened_in_2025.06_and_Corrected.xml
+6_Read_from_Data_File/Read_from_Data_File_Corrected_at_IDE_2026.01.fmscript
+6_Read_from_Data_File/Read_from_Data_File_Corrected_at_IDE_2026.01.xml
+6_Read_from_Data_File/Read_from_Data_File_Result_2026.01.fmscript
+6_Read_from_Data_File/Read_from_Data_File_Source_2026.01.xml
+6_Read_from_Data_File/Read_from_Data_File_Source_2026.02.xml
 ```
 
 ### What FileMaker gives us
@@ -605,9 +636,11 @@ One honest caveat: a step copied out of a 2025 file gives no sign of trouble, be
 
 ```
 7_Configure_Prompt_Template/7_Configure_Prompt_Template_2026.fmp12
-7_Configure_Prompt_Template/Configure_Prompt_Template_Result_2026.fmscript
+7_Configure_Prompt_Template/Configure_Prompt_Template_Result_2026.01.fmscript
+7_Configure_Prompt_Template/Configure_Prompt_Template_Result_2026.02.fmscript
 7_Configure_Prompt_Template/Configure_Prompt_Template_Result_2026_2.fmscript
-7_Configure_Prompt_Template/Configure_Prompt_Template_Source_2026.xml
+7_Configure_Prompt_Template/Configure_Prompt_Template_Source_2026.01.xml
+7_Configure_Prompt_Template/Configure_Prompt_Template_Source_2026.02.xml
 7_Configure_Prompt_Template/Configure_Prompt_Template_Source_2026_2.xml
 ```
 
@@ -661,8 +694,11 @@ FileMaker writes Google as an absence and then reads that absence as OpenAI. The
 
 ```
 8_Refresh_Portal/8_Refresh_Portal_2026.fmp12
-8_Refresh_Portal/Refresh_Portal_Result_2026.fmscript
-8_Refresh_Portal/Refresh_Portal_Source_2026.xml
+8_Refresh_Portal/Refresh_Portal_Options_dialog_has_NO_Repetition_field_MAC_2026.02.png
+8_Refresh_Portal/Refresh_Portal_Result_2026.01.fmscript
+8_Refresh_Portal/Refresh_Portal_Script_Workspace_SHOWS_phantom_Repetition_1_MAC_2026.02.png
+8_Refresh_Portal/Refresh_Portal_Source_2026.01.xml
+8_Refresh_Portal/Refresh_Portal_Source_2026.02.xml
 ```
 
 ### What FileMaker gives us
@@ -710,6 +746,17 @@ Most entries on this page are about information going missing. This one is about
 
 *Reported to Claris — [Bug Report: Refresh Portal emits a phantom "Repetition" parameter](https://community.claris.com/en/s/question/0D5Vy00002ulmO5KAI/bug-report-refresh-portal-emits-a-phantom-repetition-parameter).*
 
+
+### Seen on screen (FileMaker Pro 26.0.2.212, macOS)
+
+The dialog and the script line disagree in the same session. The Options dialog offers **only** Object Name — there is no repetition field anywhere in it — while the Script Workspace prints `Repetition: 1` on every step.
+
+![Refresh Portal Options dialog — only Object Name, no Repetition field](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/screenshots/Refresh_Portal_Options_dialog_has_NO_Repetition_field_MAC_2026.02.png)
+
+![Script Workspace showing Repetition: 1 on every Refresh Portal step](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/screenshots/Refresh_Portal_Script_Workspace_SHOWS_phantom_Repetition_1_MAC_2026.02.png)
+
+That is the whole bug in two screenshots: **FileMaker displays a parameter it gives you no way to set.**
+
 ---
 
 <a id="bug-9"></a>
@@ -721,10 +768,10 @@ Most entries on this page are about information going missing. This one is about
 
 ```
 9_Set_Dictionary/9_DictionaryBug.fmp12
-9_Set_Dictionary/winsoft.xml
 9_Set_Dictionary/winsoft.fmscript
-9_Set_Dictionary/winsoft_SaXML.xml
+9_Set_Dictionary/winsoft.xml
 9_Set_Dictionary/winsoft_Print.fmscript
+9_Set_Dictionary/winsoft_SaXML.xml
 ```
 
 ### Why it happens
@@ -784,16 +831,20 @@ The fix belongs to WinSoft: add the missing value-to-name entries for the dictio
 ```
 10_Execute_SQL/10_Execute_SQL_2025.fmp12
 10_Execute_SQL/10_Execute_SQL_2026.fmp12
-10_Execute_SQL/Execute_SQL_Copied_from_2026_Corrected_Crendetials_after_Paste.fmscript
-10_Execute_SQL/Execute_SQL_Copied_from_2026_Corrected_Crendetials_after_Paste.xml
-10_Execute_SQL/Execute_SQL_Copied_from_2026_wrong Crendetials_on_Paste.fmscript
-10_Execute_SQL/Execute_SQL_Copied_from_2026_wrong Crendetials_on_Paste.xml
-10_Execute_SQL/Execute_SQL_Result_2025.fmscript
-10_Execute_SQL/Execute_SQL_Result_2026.fmscript
-10_Execute_SQL/Execute_SQL_Source_2025.xml
-10_Execute_SQL/Execute_SQL_Source_2026.xml
-10_Execute_SQL/Execute_SQL_pasted_from_2025_Result.fmscript
-10_Execute_SQL/Execute_SQL_pasted_from_2025_Result.xml
+10_Execute_SQL/Execute_SQL_2026_AFTER_save_flags1624_CORRUPTED.xml
+10_Execute_SQL/Execute_SQL_2026_BEFORE_save_flags536_CORRECT.xml
+10_Execute_SQL/Execute_SQL_Copied_from_2026.01_Corrected_Crendetials_after_Paste.fmscript
+10_Execute_SQL/Execute_SQL_Copied_from_2026.01_Corrected_Crendetials_after_Paste.xml
+10_Execute_SQL/Execute_SQL_Copied_from_2026.01_wrong Crendetials_on_Paste.fmscript
+10_Execute_SQL/Execute_SQL_Copied_from_2026.01_wrong Crendetials_on_Paste.xml
+10_Execute_SQL/Execute_SQL_Result_2025.06.fmscript
+10_Execute_SQL/Execute_SQL_Result_2026.01.fmscript
+10_Execute_SQL/Execute_SQL_Source_2025.06.xml
+10_Execute_SQL/Execute_SQL_Source_2025.07.xml
+10_Execute_SQL/Execute_SQL_Source_2026.01.xml
+10_Execute_SQL/Execute_SQL_Source_2026.02.xml
+10_Execute_SQL/Execute_SQL_pasted_from_2025.06_Result.fmscript
+10_Execute_SQL/Execute_SQL_pasted_from_2025.06_Result.xml
 ```
 
 ### Bug one — you say "don't save my credentials", FileMaker 2026 saves them anyway
@@ -850,22 +901,28 @@ Both problems are FileMaker 2026's, and both are written into the step before an
 Windows:
 
 ```
-11_Import_Records_ODBC/WIN/11_Import_Records_from_Odbc_2026.fmp12
+11_Import_Records_ODBC/MAC/11_Import_Records_from_Odbc_MAC_2026.fmp12
+11_Import_Records_ODBC/MAC/Import_Records_ODBC_Result_2026.01.fmscript
+11_Import_Records_ODBC/MAC/Import_Records_ODBC_Source_2026.01.xml
+11_Import_Records_ODBC/MAC/Import_Records_ODBC_Source_2026.02.xml
 11_Import_Records_ODBC/WIN/11_Import_Records_from_Odbc_2025.fmp12
-11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2026.xml
-11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2025.xml
-11_Import_Records_ODBC/WIN/Import_Records_ODBC_Result_2026.fmscript
-11_Import_Records_ODBC/WIN/Import_Records_ODBC_Result_2025.fmscript
-11_Import_Records_ODBC/WIN/Import_Records_from_ODBC_Copied_from_2026_wrong Crendetials_on_Paste.fmscript
-11_Import_Records_ODBC/WIN/Import_Records_from_ODBC_Copied_from_2026_wrong Crendetials_on_Paste.xml
+11_Import_Records_ODBC/WIN/11_Import_Records_from_Odbc_2026.fmp12
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Result_2025.06.fmscript
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Result_2026.01.fmscript
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2025.06.xml
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2025.07.xml
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2026.01.xml
+11_Import_Records_ODBC/WIN/Import_Records_ODBC_Source_2026.02.xml
+11_Import_Records_ODBC/WIN/Import_Records_from_ODBC_Copied_from_2026.01_wrong Crendetials_on_Paste.fmscript
+11_Import_Records_ODBC/WIN/Import_Records_from_ODBC_Copied_from_2026.01_wrong Crendetials_on_Paste.xml
 ```
 
 macOS:
 
 ```
 11_Import_Records_ODBC/MAC/11_Import_Records_from_Odbc_MAC_2026.fmp12
-11_Import_Records_ODBC/MAC/Import_Records_ODBC_Source_2026.xml
-11_Import_Records_ODBC/MAC/Import_Records_ODBC_Result_2026.fmscript
+11_Import_Records_ODBC/MAC/Import_Records_ODBC_Source_2026.01.xml
+11_Import_Records_ODBC/MAC/Import_Records_ODBC_Result_2026.01.fmscript
 ```
 
 Open the `.fmp12` in FileMaker 2026. It holds ODBC Import steps with the credential fields left empty, and others with a user name saved. Copy them and inspect the clipboard. The `_Copied_from_2026_wrong Crendetials_on_Paste` pair shows what lands when a 2026 step is pasted into 2025.
@@ -926,10 +983,19 @@ This is the same pair of FileMaker 2026 bugs as Execute SQL, reached through a d
 ### The files we submitted to Claris
 
 ```
+12_Print_PDF/MAC/12_Print_PDF_MAC_2026.fmp12
+12_Print_PDF/MAC/Print_PDF_MAC_2026.01.fmscript
+12_Print_PDF/MAC/Print_PDF_MAC_Clipboard_2026.01.xml
+12_Print_PDF/MAC/Print_PDF_MAC_Clipboard_2026.02.xml
 12_Print_PDF/Submitted_to_Claris/Print_PDF_Bug_Report.fmp12
 12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_ClipBoard.xml
-12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_SaXML.xml
+12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_ClipBoard_2026.02.xml
 12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_Print.txt
+12_Print_PDF/Submitted_to_Claris/Print_Pdf_Bug_SaXML.xml
+12_Print_PDF/WIN/12_Print_PDF_WIN_2026.fmp12
+12_Print_PDF/WIN/Print_PDF_WIN_2026.01.fmscript
+12_Print_PDF/WIN/Print_PDF_WIN_Clipboard_2026.01.xml
+12_Print_PDF/WIN/Print_PDF_WIN_Clipboard_2026.02.xml
 ```
 
 Open `Print_PDF_Bug_Report.fmp12` and compare the three exports against each other. That is the bug.
@@ -938,12 +1004,12 @@ Open `Print_PDF_Bug_Report.fmp12` and compare the three exports against each oth
 
 ```
 12_Print_PDF/WIN/12_Print_PDF_WIN_2026.fmp12
-12_Print_PDF/WIN/Print_PDF_WIN.fmscript
-12_Print_PDF/WIN/Print_PDF_WIN_Clipboard.xml
+12_Print_PDF/WIN/Print_PDF_WIN_2026.01.fmscript
+12_Print_PDF/WIN/Print_PDF_WIN_Clipboard_2026.01.xml
 
 12_Print_PDF/MAC/12_Print_PDF_MAC_2026.fmp12
-12_Print_PDF/MAC/Print_PDF_MAC.fmscript
-12_Print_PDF/MAC/Print_PDF_MAC_Clipboard.xml
+12_Print_PDF/MAC/Print_PDF_MAC_2026.01.fmscript
+12_Print_PDF/MAC/Print_PDF_MAC_Clipboard_2026.01.xml
 ```
 
 Open the `.fmp12`, copy any Print PDF step, and read it with ai2fm. The `.fmscript` files are exactly what you will get.
@@ -992,18 +1058,24 @@ FileMaker's three serializations disagree. We no longer have to choose between t
 ### The files we submitted to Claris
 
 ```
+13_Print_PDF_2/13_Print_PDF_WIN_2.fmp12
+13_Print_PDF_2/Print_PDF_WIN_2_2026.01.fmscript
+13_Print_PDF_2/Print_PDF_WIN_Clipboard_2_2026.01.xml
+13_Print_PDF_2/Print_PDF_WIN_Clipboard_2_2026.02.xml
 13_Print_PDF_2/Submitted_to_Claris/Print_PDF_Bug_Report_2.fmp12
 13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_Clipboard_2.xml
-13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_SaXML_2.xml
+13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_Clipboard_2_2026.02.xml
 13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_Print_2.txt
+13_Print_PDF_2/Submitted_to_Claris/Print_Pdf_Letter_Landscape_SaXML_2.xml
 ```
 
 ### The files that show how we protect you
 
 ```
 13_Print_PDF_2/13_Print_PDF_WIN_2.fmp12
-13_Print_PDF_2/Print_PDF_WIN_2.fmscript
-13_Print_PDF_2/Print_PDF_WIN_Clipboard_2.xml
+13_Print_PDF_2/Print_PDF_WIN_2_2026.01.fmscript
+13_Print_PDF_2/Print_PDF_WIN_Clipboard_2_2026.01.xml
+13_Print_PDF_2/Print_PDF_WIN_Clipboard_2_2026.02.xml
 ```
 
 ### What ai2fm tells you — on both sides of the round-trip
@@ -1039,12 +1111,14 @@ This one matters beyond print. The clipboard — the source ai2fm reads — is t
 
 ```
 14_Print_Setup/WIN/14_Print_Setup_WIN_2026.fmp12
-14_Print_Setup/WIN/Print_Setup_WIN.fmscript
-14_Print_Setup/WIN/Print_Setup_WIN_Clipboard.xml
+14_Print_Setup/WIN/Print_Setup_WIN_2026.01.fmscript
+14_Print_Setup/WIN/Print_Setup_WIN_Clipboard_2026.01.xml
+14_Print_Setup/WIN/Print_Setup_WIN_Clipboard_2026.02.xml
 
 14_Print_Setup/MAC/14_Print_Setup_MAC_2026.fmp12
-14_Print_Setup/MAC/Print_Setup_MAC.fmscript
-14_Print_Setup/MAC/Print_Setup_MAC_Clipboard.xml
+14_Print_Setup/MAC/Print_Setup_MAC_2026.01.fmscript
+14_Print_Setup/MAC/Print_Setup_MAC_Clipboard_2026.01.xml
+14_Print_Setup/MAC/Print_Setup_MAC_Clipboard_2026.02.xml
 ```
 
 ### What ai2fm does — it preserves the whole thing, byte for byte
@@ -1092,12 +1166,14 @@ We decode as much as we honestly can, and we preserve everything regardless. If 
 
 ```
 15_Print/WIN/15_Print_WIN_2026.fmp12
-15_Print/WIN/Print_WIN.fmscript
-15_Print/WIN/Print_WIN_Clipboard.xml
+15_Print/WIN/Print_WIN_2026.01.fmscript
+15_Print/WIN/Print_WIN_Clipboard_2026.01.xml
+15_Print/WIN/Print_WIN_Clipboard_2026.02.xml
 
 15_Print/MAC/15_Print_MAC_2026.fmp12
-15_Print/MAC/Print_MAC.fmscript
-15_Print/MAC/Print_MAC_Clipboard.xml
+15_Print/MAC/Print_MAC_2026.01.fmscript
+15_Print/MAC/Print_MAC_Clipboard_2026.01.xml
+15_Print/MAC/Print_MAC_Clipboard_2026.02.xml
 ```
 
 ### What ai2fm does — it preserves the whole thing, byte for byte
@@ -1146,6 +1222,12 @@ None of these is data loss. FileMaker's own copy, paste and duplicate all keep t
 
 **So do not check a print step by opening its dialog.** Expand the Paper Handling summary, or open the popup and look at which item is ticked. Both show the truth.
 
+
+
+
+
+
+
 ---
 
 ## The bugs we found and did NOT report
@@ -1173,10 +1255,24 @@ Set Zoom Level's **Custom** option is new in FileMaker 2026: it stores a zoom ca
 ```
 16_Set_Zoom_Level/16_Set_Zoom_Level_2025.fmp12
 16_Set_Zoom_Level/16_Set_Zoom_Level_2026.fmp12
-16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025.xml
-16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025_Pasted_from_2026.xml
-16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2026.xml
+16_Set_Zoom_Level/Set_Zoom_Level_2025_Script_Workspace_RENDERS_EMPTY_for_2026_Custom_zoom_values_MAC_22.07.png
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025.06.xml
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025.06_Pasted_from_2026.01.xml
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025.07.xml
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2025.07_Pasted_from_2026.02.xml
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2026.01.xml
+16_Set_Zoom_Level/Set_Zoom_Level_Clipboard_2026.02.xml
 ```
+
+### Seen on screen (FileMaker Pro 22.07, macOS)
+
+Every fixed zoom renders correctly — 25%, 50%, 75%, 100%, 150%, 200%, 300%, 400%, Zoom In, Zoom Out. Only the three **Custom** steps come through blank, highlighted below:
+
+![FileMaker 2025 Script Workspace rendering an empty value for 2026 Custom zoom steps](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/screenshots/Set_Zoom_Level_2025_Script_Workspace_RENDERS_EMPTY_for_2026_Custom_zoom_values_MAC_22.07.png)
+
+The value **is** in the 2025 clipboard — `<Zoom value="ByCalculation"/>` is present in the file. FileMaker 2025 simply has no interface for a feature that did not exist when it shipped, so it draws nothing. Nothing is lost: reopen the file in 2026 and the custom zoom is intact.
+
+---
 
 <a id="bug-17"></a>
 ### Bug 17 — Re-Login (step 138) — a 2026 file reference leaks into the 2025 clipboard
@@ -1188,9 +1284,14 @@ Re-Login's data-source file reference is new in FileMaker 2026, and it rides in 
 ```
 17_Re_Login/17_Re_Login_2025.fmp12
 17_Re_Login/17_Re_Login_2026.fmp12
-17_Re_Login/Re-Login_2025_Clipboard.xml
-17_Re_Login/Re-Login_2025_Pasted_from_2026_Clipboard.xml
-17_Re_Login/Re-Login_2026_Clipboard.xml
+17_Re_Login/Re-Login_2025.06_Clipboard.xml
+17_Re_Login/Re-Login_2025.06_Pasted_from_2026.01_Clipboard.xml
+17_Re_Login/Re-Login_2025.07_Clipboard.xml
+17_Re_Login/Re-Login_2025.07_Pasted_from_2026.02_Clipboard.xml
+17_Re_Login/Re-Login_2025_Script_Workspace_SHOWS_NOTHING_though_FileReference_data_IS_in_the_clipboard_MAC_22.07.png
+17_Re_Login/Re-Login_2026.01_Clipboard.xml
+17_Re_Login/Re-Login_2026.02_Clipboard.xml
+17_Re_Login/Re-Login_2026_Script_Workspace_SHOWS_file_target_Current_File_and_named_file_MAC_26.02.png
 ```
 
 ---
@@ -1202,3 +1303,15 @@ Takahata-san ([@stbison](https://github.com/stbison)) took the time to work thro
 - [Silent-drop bugs in FileMaker 2026 — workaround strategy](https://gist.github.com/stbison/1d9b46ec906c600fc3c02d0746f95078)
 
 ---
+
+### Seen on screen — 2026 above, 2025 below
+
+In FileMaker 2026 every Re-Login step names its target file — `Current File`, or a named file such as `"Import_Records_Source"`:
+
+![FileMaker 2026 Script Workspace showing the file target on every Re-Login step](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/screenshots/Re-Login_2026_Script_Workspace_SHOWS_file_target_Current_File_and_named_file_MAC_26.02.png)
+
+Paste the same steps into FileMaker 2025 and the target is not drawn at all — every step looks the same:
+
+![FileMaker 2025 Script Workspace showing no file target, though the data is in the clipboard](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/screenshots/Re-Login_2025_Script_Workspace_SHOWS_NOTHING_though_FileReference_data_IS_in_the_clipboard_MAC_22.07.png)
+
+**The data is still there.** The `<FileReference>` elements are present in the 2025 clipboard — 2025 has no interface for a 2026 feature, so it shows nothing. Pasting back into 2025 does nothing, the file is unharmed, and the feature returns intact when the file is reopened in 2026.
