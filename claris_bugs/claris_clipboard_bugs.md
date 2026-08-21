@@ -1231,63 +1231,6 @@ None of these is data loss. FileMaker's own copy, paste and duplicate all keep t
 
 ---
 
-<a id="bug-18"></a>
-### Bug 18 — Insert from Device (step 161) — the barcode types are named wrongly in SaXML, the DDR and the printout
-
-This one is different from everything above it. **The clipboard is right.** It is the three formats you would use to *read* a solution — the DDR, the printed script, and the SaXML that migration tooling consumes — that name the wrong barcode symbologies.
-
-We authored one step with three barcode types ticked: **Aztec, Data Matrix and GS1 DataBar Limited**. FileMaker stores that selection as a bitmask, and the clipboard records it exactly:
-
-```xml
-<Barcodes types="3670016"/>
-```
-
-`3670016` is `524288 + 1048576 + 2097152` — the bits for those three types, and nothing else.
-
-Every other output names a different set:
-
-```
-Types: ITF-14, Aztec, Data Matrix
-```
-
-**GS1 DataBar Limited is gone. ITF-14 was never selected.** Every name past the eighth entry in the Barcode Options list is shifted one place, so each of the three is reported as its neighbour.
-
-### SaXML disagrees with itself
-
-The clearest evidence needs nothing but the SaXML file:
-
-```xml
-<Parameter type="type">
-    <List value="3670016">
-        <name>ITF-14</name>
-        <name>Aztec</name>
-        <name>Data Matrix</name>
-    </List>
-</Parameter>
-```
-
-It carries the correct number and the wrong names, in the same element. You do not need our word for which is right — the value and the names contradict each other on one screen.
-
-### The files
-
-- `18_Insert_from_Device/Insert_from_Device_Bug_Report_2026.fmp12` and `..._2025.fmp12` — open either, look at Barcode Options on the step, and you will see the three ticked boxes.
-- `..._Print_Out_Bug_2026.xml` and `..._2025.xml` — the clipboard, `types="3670016"` in both.
-- `..._Print_Out_Bug_2026_SaXML.xml` and `..._2025_SaXML.xml` — SaXML, correct value with wrong names.
-- `..._Print_Out_Bug_2026_Print.fmscript` and `..._2025_Print.fmscript` — the printed output.
-- `Insert_from_Device_2026_html_DDR/` — the generated DDR.
-
-### Why it matters
-
-A barcode step that scans the wrong symbologies is a functional problem, and this misreports one in the direction that hides it. Read the DDR and you are told the step scans ITF-14, which it does not, and never told it scans GS1 DataBar Limited, which it does. Someone auditing a solution against its own documentation would confirm the wrong answer and find nothing wrong.
-
-SaXML is the format used by upgrade and migration tooling, so the misnaming follows a solution through migration — though the underlying number stays correct throughout, which is why the fix should be straightforward.
-
-It only shows with a **partial** selection reaching past the eighth entry. Pick one type, or pick all twenty-two, and every format agrees.
-
-**Present in FileMaker Pro 2025 and 2026, identically.** ai2fm reads the bitmask, so it reports the three types the developer actually chose.
-
----
-
 ## The bugs we found and did NOT report
 
 Not everything we found is worth Claris's time, and a catalogue that lists every defect regardless of consequence is less useful, not more. The next two bugs are real — FileMaker genuinely does the wrong thing — but they cannot harm a user, so we are documenting them here rather than filing them. Both are the same phenomenon:
@@ -1364,6 +1307,67 @@ Paste the same steps into FileMaker 2025 and the target is not drawn at all — 
 ![FileMaker 2025 Script Workspace showing no file target, though the data is in the clipboard](https://github.com/AxelarEU/ai2fm-community/raw/main/claris_bugs/screenshots/Re-Login_2025_Script_Workspace_SHOWS_NOTHING_though_FileReference_data_IS_in_the_clipboard_MAC_22.07.png)
 
 **The data is still there.** The `<FileReference>` elements are present in the 2025 clipboard — 2025 has no interface for a 2026 feature, so it shows nothing. Pasting back into 2025 does nothing, the file is unharmed, and the feature returns intact when the file is reopened in 2026.
+
+---
+
+## And one more, reported: the clipboard is right and the rest is wrong
+
+The last bug on this page belongs with the filed ones — we reported it to Claris — but it is placed here at the end because it is the odd one out. Every bug above it damages the **clipboard**. This one leaves the clipboard perfect and corrupts the three formats you would use to *read* a solution instead.
+
+<a id="bug-18"></a>
+### Bug 18 — Insert from Device (step 161) — the barcode types are named wrongly in SaXML, the DDR and the printout
+
+This one is different from everything above it. **The clipboard is right.** It is the three formats you would use to *read* a solution — the DDR, the printed script, and the SaXML that migration tooling consumes — that name the wrong barcode symbologies.
+
+We authored one step with three barcode types ticked: **Aztec, Data Matrix and GS1 DataBar Limited**. FileMaker stores that selection as a bitmask, and the clipboard records it exactly:
+
+```xml
+<Barcodes types="3670016"/>
+```
+
+`3670016` is `524288 + 1048576 + 2097152` — the bits for those three types, and nothing else.
+
+Every other output names a different set:
+
+```
+Types: ITF-14, Aztec, Data Matrix
+```
+
+**GS1 DataBar Limited is gone. ITF-14 was never selected.** Every name past the eighth entry in the Barcode Options list is shifted one place, so each of the three is reported as its neighbour.
+
+### SaXML disagrees with itself
+
+The clearest evidence needs nothing but the SaXML file:
+
+```xml
+<Parameter type="type">
+    <List value="3670016">
+        <name>ITF-14</name>
+        <name>Aztec</name>
+        <name>Data Matrix</name>
+    </List>
+</Parameter>
+```
+
+It carries the correct number and the wrong names, in the same element. You do not need our word for which is right — the value and the names contradict each other on one screen.
+
+### The files
+
+- `18_Insert_from_Device/Insert_from_Device_Bug_Report_2026.fmp12` and `..._2025.fmp12` — open either, look at Barcode Options on the step, and you will see the three ticked boxes.
+- `..._Print_Out_Bug_2026.xml` and `..._2025.xml` — the clipboard, `types="3670016"` in both.
+- `..._Print_Out_Bug_2026_SaXML.xml` and `..._2025_SaXML.xml` — SaXML, correct value with wrong names.
+- `..._Print_Out_Bug_2026_Print.fmscript` and `..._2025_Print.fmscript` — the printed output.
+- `Insert_from_Device_2026_html_DDR/` — the generated DDR.
+
+### Why it matters
+
+A barcode step that scans the wrong symbologies is a functional problem, and this misreports one in the direction that hides it. Read the DDR and you are told the step scans ITF-14, which it does not, and never told it scans GS1 DataBar Limited, which it does. Someone auditing a solution against its own documentation would confirm the wrong answer and find nothing wrong.
+
+SaXML is the format used by upgrade and migration tooling, so the misnaming follows a solution through migration — though the underlying number stays correct throughout, which is why the fix should be straightforward.
+
+It only shows with a **partial** selection reaching past the eighth entry. Pick one type, or pick all twenty-two, and every format agrees.
+
+**Present in FileMaker Pro 2025 and 2026, identically.** ai2fm reads the bitmask, so it reports the three types the developer actually chose.
 
 ---
 
