@@ -1369,6 +1369,8 @@ It only shows with a **partial** selection reaching past the eighth entry. Pick 
 
 **Present in FileMaker Pro 2025 and 2026, identically.** ai2fm reads the bitmask, so it reports the three types the developer actually chose.
 
+*Reported to Claris — [Bug Report: Insert from Device barcode types at SaXML, HTML DDR and printed output are named incorrectly in FileMaker Pro 2026 and 2025 — the same wrong three symbologies on both versions, while the Clipboard XML is correct](https://community.claris.com/en/s/question/0D5Vy00003BqpoDKAR/bug-report-insert-from-device-barcode-types-at-saxml-html-ddr-and-printed-output-are-named-incorrectly-in-filemaker-pro-2026-and-2025-the-same-wrong-three-symbologies-on-both-versions-while-the-clipboard-xml-is-correct)*
+
 ---
 
 ## Community workaround
