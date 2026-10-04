@@ -23,6 +23,12 @@ During the R&D for ai2fm we found, documented, and reported to Claris a set of b
 
 ➡️ **[Read the Claris Clipboard Bugs catalogue](https://axelareu.github.io/ai2fm-community/claris_bugs/claris_clipboard_bugs.html)**  ·  [source on GitHub](claris_bugs/claris_clipboard_bugs.md)
 
+### 🏋️ Benchmark: fmIDE, one script, 5,452 steps
+
+Russell Watson's [fmIDE](https://github.com/fmIDE/fmIDE) main script, with its 800-line [fmJAML](https://github.com/fmIDE/fmJAML) calculation. Its 37,162 lines of clipboard XML become **9,721 lines of `.fmscript`** in under 6 seconds. The files are here, with FileMaker's own 71,945-line Save-as-XML for comparison.
+
+➡️ **[See the fmIDE benchmark](benchmarks/fmIDE/README.md)**
+
 ---
 
 ## ⚡ The Workflow (Vibe Coding)
