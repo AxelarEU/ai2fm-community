@@ -34,6 +34,30 @@ The FileMaker files open in FileMaker Pro 2025 or 2026 as their names say. Nothi
 
 ---
 
+## Status after FileMaker Pro 26.0.3 (Bugs 1–8, 16 and 17 re-verified)
+
+FileMaker Pro **26.0.3** (September 2026) lists two clipboard fixes in its release notes: Configure AI Account copied from FileMaker 2025 and pasted into 2026, and Print PDF losing its page setup on copy and paste. Claris also told us that a third, Configure Machine Learning Model copied from 2025 and pasted into 2026, is fixed. We re-captured **Bugs 1–8** on 26.0.3, on Windows, on 2026-09-24, and re-checked **Bugs 16 and 17** later.
+
+| Bug | On 26.0.3 |
+|---|---|
+| **[Bug 2](#bug-2)** — Configure AI Account (212) | **Fixed in one direction.** A step copied in FileMaker 2025 now pastes into 26.0.3 with every field. A step copied in 2026 still pastes into 2025 blank: 2025 does not know the corrected tag. |
+| **[Bug 3](#bug-3)** — Configure Machine Learning Model (202) | A step copied in 2026 still pastes into 2025 wrong. Claris reports the other direction, 2025 into 2026, fixed; that direction is not yet tested by ai2fm. |
+| **[Bug 5](#bug-5)**, **[Bug 7](#bug-7)** | Still fixed. |
+| **[Bug 1](#bug-1)**, **[Bug 4](#bug-4)**, **[Bug 6](#bug-6)**, **[Bug 8](#bug-8)** | Still present. |
+| **[Bug 16](#bug-16)** — Set Zoom Level (97), **[Bug 17](#bug-17)** — Re-Login (138) | Still present. A step copied in 26.0.3 still carries its 2026-only data into the FileMaker 2025 (22.0.7) clipboard. |
+
+FileMaker 2025 is not being updated, so the direction **from 2026 into 2025** stays broken for Bugs 2 and 3. ai2fm's **Target FileMaker Version** setting writes whichever form the destination needs, in both directions.
+
+**[Bug 10](#bug-10) and [Bug 11](#bug-11) are not something an update can fix.** In FileMaker 2026 the ODBC user name and password are **calculations**: a literal name is written in quotes, `"Admin"`, and an unquoted `Get ( AccountName )` is evaluated when the step runs. FileMaker 2025 and earlier store the same two boxes as **plain text**: `Admin`, no quotes. The quotes are not stray; they are how a 2026 calculation writes text. For a step to move between the versions unchanged, Claris would have to make the 2025-and-earlier boxes calculations too. ai2fm converts both ways with the **Target FileMaker Version** setting: a name gains its quotes for 2026 and loses them for 2025, a password that itself contains a quote included. A real calculation cannot become text in 2025, so ai2fm leaves it as it is and warns on the step.
+
+**[Bug 18](#bug-18) is being fixed.** On 2026-10-06 Claris told us the fix for the wrong barcode types is in the latest pre-release build of FileMaker Pro and will ship in an upcoming update.
+
+**Not yet tested by ai2fm on 26.0.3:** Bugs 12–15. That includes **Bugs 12 and 13**, the Print PDF page setup that the 26.0.3 release notes name as fixed. Their status below is still the 26.0.2 one.
+
+ai2fm keeps every warning and repair. Your copy of FileMaker may be 2025, 26.0.1, 26.0.2 or 26.0.3, and the step you paste may come from any of them.
+
+---
+
 ## Status after FileMaker Pro 26.0.2 (re-verified 2026-08-09)
 
 FileMaker Pro **26.0.2** (26.0.2.212, 14 July 2026) states that it *"fixes issues relating to copying and pasting script steps in the Script Workspace."* Claris asked us to validate that. We did — **every bug on this page was re-captured and re-diffed on the new builds.**
@@ -59,26 +83,26 @@ For **Bugs 12 and 13** we re-ran the exact reproducer files we had submitted to 
 
 Each bug below has a stable anchor. Our FileMaker reproducer files link straight to the bug they were built for — for example `…/claris_clipboard_bugs.html#bug-4` opens Bug 4.
 
-| # | Step | Bug | Status on 26.0.2 | Link |
-|---|---|---|---|---|
-| 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | Still present | [#bug-1](#bug-1) |
-| 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | Still present | [#bug-2](#bug-2) |
-| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | Still present | [#bug-3](#bug-3) |
-| 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | Still present | [#bug-4](#bug-4) |
-| 5 | Perform RAG Action — Add Data (219) | Response Target dropped for (Async) sources | **Fixed** | [#bug-5](#bug-5) |
-| 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | Still present | [#bug-6](#bug-6) |
-| 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | **Fixed** | [#bug-7](#bug-7) |
-| 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | Still present | [#bug-8](#bug-8) |
-| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | **Resolved by WinSoft** in 26.0.2 — the extra dictionaries were removed | [#bug-9](#bug-9) |
-| 10 | Execute SQL (117) | Two ways FileMaker 2026 breaks an ODBC connection | Still present | [#bug-10](#bug-10) |
-| 11 | Import Records ODBC (35) | The same two bugs, on your data imports | Still present | [#bug-11](#bug-11) |
-| 12 | Print PDF (242) | Page setup unstable — three serializations disagree | Still present | [#bug-12](#bug-12) |
-| 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | Still present | [#bug-13](#bug-13) |
-| 14 | Print Setup (42) | The same unstable page setup — we warn both ways | Still present | [#bug-14](#bug-14) |
-| 15 | Print (43) | The same unstable page setup — we warn both ways | Still present | [#bug-15](#bug-15) |
-| 16 | Set Zoom Level (97) | *Not filed* — 2026 Custom zoom leaks into the 2025 clipboard | Still present | [#bug-16](#bug-16) |
-| 17 | Re-Login (138) | *Not filed* — 2026 file reference leaks into the 2025 clipboard | Still present | [#bug-17](#bug-17) |
-| 18 | Insert from Device (161) | Barcode types misnamed in SaXML, DDR and printout — the Clipboard is correct | Still present | [#bug-18](#bug-18) |
+| # | Step | Bug | Status on 26.0.2 | Status on 26.0.3 | Claris case | Link |
+|---|---|---|---|---|---|---|
+| 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | Still present | Still present | — | [#bug-1](#bug-1) |
+| 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | Still present | **Fixed 2025 → 2026**; 2026 → 2025 still blank | 00917117 | [#bug-2](#bug-2) |
+| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | Still present | 2026 → 2025 still fails; 2025 → 2026 reported fixed, not yet tested by ai2fm | 00917153 | [#bug-3](#bug-3) |
+| 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | Still present | Still present | 00921415 | [#bug-4](#bug-4) |
+| 5 | Perform RAG Action — Add Data (219) | Response Target dropped for (Async) sources | **Fixed** | **Fixed** | 00916818 | [#bug-5](#bug-5) |
+| 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | Still present | Still present | 00921417 | [#bug-6](#bug-6) |
+| 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | **Fixed** | **Fixed** | — | [#bug-7](#bug-7) |
+| 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | Still present | Still present | 00920831 | [#bug-8](#bug-8) |
+| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | **Resolved by WinSoft** in 26.0.2 — the extra dictionaries were removed | — | 00920939 | [#bug-9](#bug-9) |
+| 10 | Execute SQL (117) | Save credentials flipped on; 2026 credentials are calculations, 2025 text | Still present | **Not fixable by an update** — 2026 credentials are calculations, 2025 and earlier store text | 00919882 | [#bug-10](#bug-10) |
+| 11 | Import Records ODBC (35) | The same two issues, on your data imports | Still present | **Not fixable by an update** — the same as Bug 10 | 00919882 | [#bug-11](#bug-11) |
+| 12 | Print PDF (242) | Page setup unstable — three serializations disagree | Still present | Not yet tested by ai2fm | 00918896 | [#bug-12](#bug-12) |
+| 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | Still present | Not yet tested by ai2fm | 00918897 | [#bug-13](#bug-13) |
+| 14 | Print Setup (42) | The same unstable page setup — we warn both ways | Still present | Not yet tested by ai2fm | — | [#bug-14](#bug-14) |
+| 15 | Print (43) | The same unstable page setup — we warn both ways | Still present | Not yet tested by ai2fm | — | [#bug-15](#bug-15) |
+| 16 | Set Zoom Level (97) | *Not filed* — 2026 Custom zoom leaks into the 2025 clipboard | Still present | Still present: copied from 26.0.3, pasted into 22.0.7 | — | [#bug-16](#bug-16) |
+| 17 | Re-Login (138) | *Not filed* — 2026 file reference leaks into the 2025 clipboard | Still present | Still present: copied from 26.0.3, pasted into 22.0.7 | — | [#bug-17](#bug-17) |
+| 18 | Insert from Device (161) | Barcode types misnamed in SaXML, DDR and printout — the Clipboard is correct | Still present | **Fixed in Claris's pre-release build** — in an upcoming update | 00930742 | [#bug-18](#bug-18) |
 
 ---
 
@@ -185,6 +209,10 @@ The bug is FileMaker's; the loss is real; and ai2fm's job is to make the loss **
 <a id="bug-2"></a>
 ## Bug 2 — Configure AI Account (step 212) — the XML tag was renamed, so the two versions can't share a step
 
+> **Update, 2026-09-24 — FileMaker Pro 26.0.3 fixes one direction.** A step copied in FileMaker 2025 now pastes into 26.0.3 with every field. A step copied in 2026 still pastes into FileMaker 2025 blank, because 2025 does not know the corrected tag, and 2025 is not being updated. ai2fm's target-version conversion still handles both directions.
+>
+> The section below describes the bug as it was before 26.0.3.
+
 **The bug.** FileMaker 2025 misspelled its own element names. FileMaker 2026 corrected the spelling — and gave neither version a fallback for the other. The result is a wall in *both* directions: a Configure AI Account step copied in one version, pasted into the other, comes in with **Account Name, Endpoint and API key silently blanked.** The paste appears to succeed; your credentials are just gone.
 
 ### The files
@@ -269,12 +297,14 @@ Configure AI Account [ Account Name: "my_Local_account" ; Model Provider: Custom
 
 FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in either direction the credentials come across blank. ai2fm makes the two versions **interoperable**: it reads both spellings and, using the Target FileMaker Version setting, writes whichever the destination needs. This is not a repair of lost data — the data was never lost, only mis-tagged — it is a translation FileMaker itself does not perform.
 
-*Reported to Claris — [Backward-compatibility bug: FileMaker Pro 2026 fails to paste FileMaker Pro 2025 Configure AI Account script steps due to renamed XML tags](https://community.claris.com/en/s/question/0D5Vy00002pVV9VKAW/backward-compatibility-bug-filemaker-pro-2026-fails-to-paste-filemaker-pro-2025-configure-ai-account-script-steps-due-to-renamed-xml-tags).*
+*Reported to Claris, case 00917117 — [Backward-compatibility bug: FileMaker Pro 2026 fails to paste FileMaker Pro 2025 Configure AI Account script steps due to renamed XML tags](https://community.claris.com/en/s/question/0D5Vy00002pVV9VKAW/backward-compatibility-bug-filemaker-pro-2026-fails-to-paste-filemaker-pro-2025-configure-ai-account-script-steps-due-to-renamed-xml-tags).*
 
 ---
 
 <a id="bug-3"></a>
 ## Bug 3 — Configure Machine Learning Model (step 202) — the structure changed, and a bad paste becomes a different command
+
+> **Update, 2026-09-24 — on FileMaker Pro 26.0.3, a step copied in 2026 still pastes into FileMaker 2025 wrong.** Claris tells us the other direction, a step copied in 2025 and pasted into 2026, is fixed in 26.0.3. That direction is not yet tested by ai2fm. ai2fm repairs the step in both directions.
 
 **The bug.** FileMaker 2025 and FileMaker 2026 write this step with different XML *structures*, and neither version's importer accepts the other's. Copy the step across versions and it does not error — it pastes a step that is quietly **wrong in two ways**: the **From** source field is dropped, and the **Operation** resets to `Unload`. A `Vision` model step becomes an `Unload` step. This is the most dangerous failure on this page, because the result looks like a perfectly valid command — just not the one you had.
 
@@ -349,7 +379,7 @@ Read the step into ai2fm, set the **Target FileMaker Version** to wherever you a
 
 FileMaker 2025 and 2026 cannot exchange a Configure Machine Learning Model step: across versions the operation resets to `Unload` and the source field vanishes — a valid-looking step that does the wrong thing. ai2fm reads both structures, keeps the operation and the source, and writes whichever shape the destination needs. Nothing is lost — the values were always in the XML; FileMaker just could not read the other version's layout.
 
-*Reported to Claris — [Backward-compatibility bug: FileMaker Pro 2026 fails to paste FileMaker Pro 2025 Configure Machine Learning Model script steps](https://community.claris.com/en/s/question/0D5Vy00002pahA0KAI/backward-compatibility-bug-filemaker-pro-2026-fails-to-paste-filemaker-pro-2025-configure-machine-learning-model-script-steps).*
+*Reported to Claris, case 00917153 — [Backward-compatibility bug: FileMaker Pro 2026 fails to paste FileMaker Pro 2025 Configure Machine Learning Model script steps](https://community.claris.com/en/s/question/0D5Vy00002pahA0KAI/backward-compatibility-bug-filemaker-pro-2026-fails-to-paste-filemaker-pro-2025-configure-machine-learning-model-script-steps).*
 
 ---
 
@@ -447,7 +477,7 @@ That clipboard pastes into FileMaker with the New position intact.
 
 FileMaker 2026 loses the New position the moment you copy the step, in a way nothing on screen reveals. ai2fm cannot recover a value that never reached the clipboard — but it makes the loss **visible**, flags exactly which steps are affected, and rebuilds the value the instant you supply it. A silent drop becomes a caught one.
 
-*Reported to Claris — [Bug report: FileMaker Pro 2026 drops the New position value from Set Data File Position on copy to the clipboard](https://community.claris.com/en/s/question/0D5Vy00002veMl7KAE/bug-report-filemaker-pro-2026-drops-the-new-position-value-from-set-data-file-position-on-copy-to-the-clipboard).*
+*Reported to Claris, case 00921415 — [Bug report: FileMaker Pro 2026 drops the New position value from Set Data File Position on copy to the clipboard](https://community.claris.com/en/s/question/0D5Vy00002veMl7KAE/bug-report-filemaker-pro-2026-drops-the-new-position-value-from-set-data-file-position-on-copy-to-the-clipboard).*
 
 ---
 
@@ -531,7 +561,7 @@ Perform RAG Action [ RAG Account Name: "theAccount" ; Space ID: "theID" ; Action
 
 FileMaker 2026 keeps the Add-Data Response Target for the synchronous sources and silently drops it for the *(Async)* ones. ai2fm mirrors the truth exactly: it preserves the value where FileMaker preserves it, flags the precise steps where FileMaker lost it, and rebuilds it the moment you re-enter it. Nothing correct is thrown away, and nothing lost is left silent.
 
-*Reported to Claris — [Data loss bug: "Response Target" is removed when copying/pasting Perform RAG Action (Add Data) script steps in Script Workspace](https://community.claris.com/en/s/question/0D5Vy00002p5t84KAA/data-loss-bug-response-target-is-removed-when-copyingpasting-perform-rag-action-add-data-script-steps-in-script-workspace).*
+*Reported to Claris, case 00916818 — [Data loss bug: "Response Target" is removed when copying/pasting Perform RAG Action (Add Data) script steps in Script Workspace](https://community.claris.com/en/s/question/0D5Vy00002p5t84KAA/data-loss-bug-response-target-is-removed-when-copyingpasting-perform-rag-action-add-data-script-steps-in-script-workspace).*
 
 ---
 
@@ -626,7 +656,7 @@ One script silently enforces a read limit; the other silently has none; and noth
 
 One honest caveat: a step copied out of a 2025 file gives no sign of trouble, because in 2025 an empty Amount is a perfectly normal thing to have — ai2fm cannot tell "never set" from "lost on the way here". If a 2025 file began life in 2026, check the Amount gear on these steps before trusting a blank.
 
-*Reported to Claris — [Bug Report: FileMaker Pro 2026 drops the "Amount (bytes)" value from Read from Data File on copy to the clipboard](https://community.claris.com/en/s/question/0D5Vy00002veHlvKAE/bug-report-filemaker-pro-2026-drops-the-amount-bytes-value-from-read-from-data-file-on-copy-to-the-clipboard).*
+*Reported to Claris, case 00921417 — [Bug Report: FileMaker Pro 2026 drops the "Amount (bytes)" value from Read from Data File on copy to the clipboard](https://community.claris.com/en/s/question/0D5Vy00002veHlvKAE/bug-report-filemaker-pro-2026-drops-the-amount-bytes-value-from-read-from-data-file-on-copy-to-the-clipboard).*
 
 ---
 
@@ -747,7 +777,7 @@ No Repetition — in enabled and disabled steps alike. This is a deliberate edit
 
 Most entries on this page are about information going missing. This one is about information that should never have been surfaced. A parameter you cannot set is not a setting — and two clipboards that differ only by its presence describe exactly the same step, so carrying it through would produce spurious differences when you diff or version your scripts.
 
-*Reported to Claris — [Bug Report: Refresh Portal emits a phantom "Repetition" parameter](https://community.claris.com/en/s/question/0D5Vy00002ulmO5KAI/bug-report-refresh-portal-emits-a-phantom-repetition-parameter).*
+*Reported to Claris, case 00920831 — [Bug Report: Refresh Portal emits a phantom "Repetition" parameter](https://community.claris.com/en/s/question/0D5Vy00002ulmO5KAI/bug-report-refresh-portal-emits-a-phantom-repetition-parameter).*
 
 
 ### Seen on screen (FileMaker Pro 26.0.2.212, macOS)
@@ -826,14 +856,16 @@ There is no clean format to recover from. The clipboard, the printed output and 
 
 What we asked WinSoft for was the missing value-to-name entries for the dictionaries they ship beyond the standard thirteen; the 1–13 table was already correct. WinSoft chose the other remedy in 26.0.2: they removed those dictionaries (see the update at the top of this bug).
 
-*Reported to **WinSoft** — ticket [rt2.winsoft.fr #1683], where WinSoft reproduced and confirmed all three failure modes on the ME build, with their own screenshots. **Claris is investigating too:** although this is a localized-build defect rather than their own, Claris forwarded the report to their Testing and Development teams (2026-08-06) to check whether anything in the version of FileMaker Pro they support needs correcting. Also posted to the Claris community so other users of the localized builds can find it: [Bug Report: WinSoft (ME/CE localized) FileMaker builds corrupt Set Dictionary's language on copy/print/SaXML](https://community.claris.com/en/s/question/0D5Vy00002uuapSKAQ/bug-report-winsoft-mece-localized-filemaker-builds-corrupt-set-dictionarys-language-on-copyprintsaxml).*
+*Reported to **WinSoft** — ticket [rt2.winsoft.fr #1683], where WinSoft reproduced and confirmed all three failure modes on the ME build, with their own screenshots. **Claris is investigating too** (Claris case 00920939): although this is a localized-build defect rather than their own, Claris forwarded the report to their Testing and Development teams (2026-08-06) to check whether anything in the version of FileMaker Pro they support needs correcting. Also posted to the Claris community so other users of the localized builds can find it: [Bug Report: WinSoft (ME/CE localized) FileMaker builds corrupt Set Dictionary's language on copy/print/SaXML](https://community.claris.com/en/s/question/0D5Vy00002uuapSKAQ/bug-report-winsoft-mece-localized-filemaker-builds-corrupt-set-dictionarys-language-on-copyprintsaxml).*
 
 ---
 
 <a id="bug-10"></a>
-## Bug 10 — Execute SQL (step 117) — two ways FileMaker 2026 breaks an ODBC connection
+## Bug 10 — Execute SQL (step 117) — the Save credentials flag is flipped, and 2025 and 2026 store the credentials differently
 
-**The bug.** An Execute SQL step that connects to an ODBC data source has two settings FileMaker 2026 mishandles: the **Save credentials** checkbox and the **user name**. Both are corrupted the moment you save the step in 2026, and the damage travels with the step wherever you paste it. ai2fm cannot undo what FileMaker already wrote — but it can tell you, on the exact step, what happened and what to fix.
+> **Update, 2026-10-09 — we had the second half wrong.** This section used to say that FileMaker 2026 wraps the user name in "stray quotes" and that you should remove them. The quotes are not stray. In FileMaker 2026 the user name and password are **calculations**, and the quotes are how a calculation writes text. Removing them in 2026 breaks the step. The section below is corrected, and so is ai2fm: the "remove the quotes" warning is gone.
+
+**The bug.** An Execute SQL step that connects to an ODBC data source has two settings that do not survive a move between FileMaker 2025 and 2026: the **Save credentials** checkbox, and the **user name and password**. The first is a FileMaker 2026 defect. The second is a change of design: FileMaker 2026 made the two credential boxes calculations, while FileMaker 2025 and earlier keep them as plain text. ai2fm warns on the first and converts the second.
 
 ### The files
 
@@ -856,7 +888,7 @@ What we asked WinSoft for was the missing value-to-name entries for the dictiona
 10_Execute_SQL/Execute_SQL_pasted_from_2025.06_Result.xml
 ```
 
-### Bug one — you say "don't save my credentials", FileMaker 2026 saves them anyway
+### One — you say "don't save my credentials", FileMaker 2026 saves them anyway
 
 Set the ODBC Connect dialog's "Save user name and password" checkbox to **off**, with no user name or password, and save the step. Copy it, and the clipboard says the opposite:
 
@@ -873,37 +905,74 @@ ai2fm reads that clipboard and flags it, on the step:
 Execute SQL [ With dialog: Off ; ODBC Data Source: gemini ; Save credentials: On ]
 ```
 
-### Bug two — FileMaker 2026 wraps the user name in stray quotes
+### Two — in 2026 the credentials are calculations, in 2025 they are text
 
-Now the step with a saved user name. You typed `root`. Copy the step, and the clipboard has this:
+Since FileMaker 2026, *"ODBC data source credentials can now be specified by a calculation"* (Claris release notes, 26.0.1). The two boxes hold calculations now, so a literal name is written the way any calculation writes text: in quotes.
+
+Copy a step with the user name `root` in **FileMaker 2025** (`Execute_SQL_Source_2025.06.xml`):
+
+```xml
+<Profile QueryType="Query" flags="600" password="12345678" UserName="root" dsn="gemini" DataType="ODBC"/>
+```
+
+The same step in **FileMaker 2026** (`Execute_SQL_Source_2026.01.xml`):
 
 ```xml
 <Profile QueryType="Calculation" flags="1624" password="12345678" UserName="&quot;root&quot;" dsn="gemini" DataType="ODBC"/>
 ```
 
-The user name is stored as `"root"` — with literal double quotes wrapped around it. FileMaker 2026 added them at save time. In FileMaker 2026 the step still runs, because 2026 accepts its own quoted name. But **paste it into FileMaker 2025 and the step silently will not run** — 2025 does not recognise `"root"` as a user name, the connection fails, and nothing on screen tells you why. The step is there, it displays, its values look present — it just does not work. The fix is to remove the quotes so the name reads `root` again.
+The user name is the string literal `"root"`. The password needs no quotes because `12345678` is a number, and a number evaluates to its own digits. FileMaker 2026 evaluates both when the step runs: an unquoted `Get ( AccountName )` signs in as the current account.
 
-ai2fm flags this too, and shows you the corrected name:
+That is correct in 2026. The trouble starts when the step moves:
+
+- **2026 → 2025.** FileMaker 2025 reads the box as text, so it signs in as `"root"`, quotes included. The connection fails and nothing on screen says why (`Execute_SQL_Copied_from_2026.01_wrong Crendetials_on_Paste`). A real calculation, such as `Get ( AccountName )`, cannot work in 2025 at all: 2025 sends the characters as typed.
+- **2025 → 2026.** Pasted directly, FileMaker 2026 adds the quotes itself (`Execute_SQL_pasted_from_2025.06_Result`).
+
+No FileMaker update can fix this. For a step to move unchanged, FileMaker 2025 and earlier would have to treat the two boxes as calculations too.
+
+### What ai2fm does — it writes the credentials for the version you paste into
+
+ai2fm shows the credentials exactly as FileMaker stored them:
 
 ```fmscript
-# ⚠️ The ODBC User Name has stray quotes added by FileMaker 2026 — remove them so it reads root or the step will not run in 2025.
 Execute SQL [ With dialog: Off ; ODBC Data Source: gemini ; User Name: "root" ; Password: 12345678 ; Save credentials: On ]
+```
+
+When you convert back, the **Target FileMaker Version** setting decides what FileMaker receives:
+
+| In the script | Target 2025 receives | Target 2026 receives |
+|---|---|---|
+| `User Name: "root"` | `root` | `"root"` |
+| `User Name: root` | `root` | `"root"` |
+| `Password: "\"Iam#pawssword"` (a password that begins with a quote) | `"Iam#pawssword` | `"\"Iam#pawssword"` |
+| `Password: "Iam#password\""` (a password that ends with a quote) | `Iam#password"` | `"Iam#password\""` |
+| `User Name: Get ( AccountName )` | unchanged, with a warning | unchanged: 2026 evaluates it |
+
+We tested the two quote passwords against a real MariaDB server: both connect, in FileMaker 2026 and in FileMaker 2025.
+
+A calculation cannot become text, so for target 2025 ai2fm leaves it as it is and says so on the step. The warning names the box, never its value:
+
+```fmscript
+# ⚠️ FileMaker 2025 cannot evaluate the ODBC User Name: it stores the text as typed, so the connection will fail. Replace it with the literal value.
+Execute SQL [ With dialog: Off ; ODBC Data Source: gemini ; User Name: Get ( AccountName ) ; Password: "admin" ; Save credentials: On ]
 ```
 
 ### The point
 
-Both problems are FileMaker 2026's, and both are written into the step before any tool sees it — ai2fm cannot silently repair a value FileMaker deliberately wrote. What it does instead is refuse to let either pass unnoticed: it warns you on the exact step, in plain terms, that the credential flag was flipped against your choice and that the quoted user name will break the step in 2025. A silent failure becomes a caught one.
+These are two different problems. The Save credentials flag is a FileMaker 2026 defect, written into the step before any tool sees it, and ai2fm warns about it on the exact step. The credentials are a change of design that no update will reverse. ai2fm writes each value the way the FileMaker you paste into reads it, and warns where no conversion is possible.
 
-*Reported to Claris — [Bug Report: FileMaker Pro Execute SQL / Import Records ODBC "Save user name and password" flag is not preserved across versions](https://community.claris.com/en/s/question/0D5Vy00002szQ2NKAU/bug-report-filemaker-pro-execute-sql-import-records-odbc-save-user-name-and-password-flag-is-not-preserved-across-versions-a-2025-step-with-credentials-not-saved-pastes-into-2026-with-the-checkbox-wrongly-checked).*
+*Reported to Claris, case 00919882 — [Bug Report: FileMaker Pro Execute SQL / Import Records ODBC "Save user name and password" flag is not preserved across versions](https://community.claris.com/en/s/question/0D5Vy00002szQ2NKAU/bug-report-filemaker-pro-execute-sql-import-records-odbc-save-user-name-and-password-flag-is-not-preserved-across-versions-a-2025-step-with-credentials-not-saved-pastes-into-2026-with-the-checkbox-wrongly-checked).*
 
-*(The same Claris report also covers Import Records with an ODBC source — the same two bugs, documented next.)*
+*(The same Claris report also covers Import Records with an ODBC source — the same two issues, documented next.)*
 
 ---
 
 <a id="bug-11"></a>
-## Bug 11 — Import Records ODBC (step 35) — the same two bugs, on your data imports
+## Bug 11 — Import Records ODBC (step 35) — the same two issues, on your data imports
 
-**The bug.** Import Records can pull its rows from an ODBC data source, using the exact same connection settings as Execute SQL — and it inherits the exact same two FileMaker 2026 problems. The **Save credentials** flag is set on with nothing to save, and the **user name** is wrapped in stray quotes. If you migrate scripts across versions, every ODBC import is affected the same way an Execute SQL step is.
+> **Update, 2026-10-09:** the quotes around the user name are not stray. In FileMaker 2026 the credentials are calculations. See [Bug 10](#bug-10); this section is corrected the same way.
+
+**The bug.** Import Records can pull its rows from an ODBC data source, using the exact same connection settings as Execute SQL, and it has the exact same two issues. The **Save credentials** flag is set on with nothing to save, a FileMaker 2026 defect. And the **user name and password** are calculations in FileMaker 2026 but plain text in 2025 and earlier. If you move scripts across versions, every ODBC import is affected the same way an Execute SQL step is.
 
 ### The files
 
@@ -951,36 +1020,35 @@ The `flags` value carries the same "Save user name and password" bit that Execut
 Import Records [ With dialog: Off ; Verify SSL Certificates ; ODBC Data Source: gemini; Save credentials: Off; … ]
 ```
 
-### The saved user name is wrapped in stray quotes
+### The saved user name is a calculation in 2026
 
-And the step with a saved user name of `root` copies with the quotes baked in:
+The step with a saved user name of `root` copies from FileMaker 2026 with the name as a string literal:
 
 ```xml
 <Profile QueryType="Query" flags="1632" password="12345678" UserName="&quot;root&quot;" dsn="gemini" DataType="ODBC">
 ```
 
-`"root"` — the same corruption as Execute SQL. The import runs in FileMaker 2026 but **silently will not run once pasted into FileMaker 2025**, until the quotes are removed. ai2fm shows you the corrected name:
+FileMaker 2025 stores the same name as `root`, no quotes (`Import_Records_ODBC_Source_2025.06.xml`). Pasted into FileMaker 2025, the 2026 step signs in as `"root"`, quotes included, and the import fails (`Import_Records_from_ODBC_Copied_from_2026.01_wrong Crendetials_on_Paste`).
+
+ai2fm shows the name as FileMaker stored it, and converts it for the **Target FileMaker Version** exactly as for Execute SQL: `root` for 2025, `"root"` for 2026, a password containing a quote included. A calculation such as `Get ( AccountName )` stays as it is for 2025, with the same warning:
 
 ```fmscript
-# ⚠️ The ODBC User Name has stray quotes added by FileMaker 2026 — remove them so it reads root or the step will not run in 2025.
 Import Records [ With dialog: Off ; Verify SSL Certificates ; ODBC Data Source: gemini; User Name: "root"; Password: 12345678; Save credentials: On; … ]
 ```
 
-### Both platforms, the same corruption
+### Both platforms, the same storage
 
-We tested this on Windows and on macOS. The clipboard is corrupted the same way on both — the Mac capture carries the identical `flags="1632"` and the identical `UserName="&quot;root&quot;"`, against a MariaDB source over ODBC:
+We tested this on Windows and on macOS. FileMaker 2026 writes the credentials the same way on both. The Mac capture carries the same `flags="1632"` and the same `UserName="&quot;root&quot;"`, against a MariaDB source over ODBC:
 
 ```xml
 <Profile QueryType="Query" flags="1632" password="12345678" UserName="&quot;root&quot;" dsn="mariadb" DataType="ODBC">
 ```
 
-ai2fm warns on both, on every affected step. This is not a Windows quirk to be worked around on one platform — it is how FileMaker 2026 writes an ODBC step's credentials, wherever you run it.
-
 ### The point
 
-This is the same pair of FileMaker 2026 bugs as Execute SQL, reached through a different step — because both share the ODBC connection dialog. Whether you query a database with Execute SQL or pull rows from it with Import Records, the credential flag is flipped and the user name is quote-wrapped in the same way, and ai2fm warns you the same way on both. A migrated import that would silently fail becomes one you can see and fix.
+These are the same two issues as Execute SQL, reached through a different step, because both share the ODBC connection dialog. The Save credentials flag is flipped, and ai2fm warns. The credentials are calculations in 2026 and text in 2025, and ai2fm writes them for the version you paste into. An ODBC import moves between the versions and still connects.
 
-*Reported to Claris — [Bug Report: FileMaker Pro Execute SQL / Import Records ODBC "Save user name and password" flag is not preserved across versions](https://community.claris.com/en/s/question/0D5Vy00002szQ2NKAU/bug-report-filemaker-pro-execute-sql-import-records-odbc-save-user-name-and-password-flag-is-not-preserved-across-versions-a-2025-step-with-credentials-not-saved-pastes-into-2026-with-the-checkbox-wrongly-checked).*
+*Reported to Claris, case 00919882 — [Bug Report: FileMaker Pro Execute SQL / Import Records ODBC "Save user name and password" flag is not preserved across versions](https://community.claris.com/en/s/question/0D5Vy00002szQ2NKAU/bug-report-filemaker-pro-execute-sql-import-records-odbc-save-user-name-and-password-flag-is-not-preserved-across-versions-a-2025-step-with-credentials-not-saved-pastes-into-2026-with-the-checkbox-wrongly-checked).*
 
 ---
 
@@ -1055,7 +1123,7 @@ Two notes, one on each side of the round-trip, on all three page-setup steps. Th
 
 FileMaker's three serializations disagree. We no longer have to choose between them: we carry the original bytes and hand them back untouched. The instability is still FileMaker's — the reproducer above is filed — but it can no longer cost you a print setup.
 
-*Reported to Claris — [Bug Report (1 of 2): FileMaker Pro 2026 Print PDF page setup is unstable/inconsistent — the Clipboard XML of the same two saved steps disagrees with SaXML, the printed output, and the authored Landscape/Letter](https://community.claris.com/en/s/question/0D5Vy00002rqoRFKAY/bug-report-1-of-2-filemaker-pro-2026-print-pdf-page-setup-is-unstableinconsistent-clipboard-xml-serialization-of-the-same-two-saved-steps-disagree-with-saxml-and-printed-output-and-with-the-authored-landscapeletter).*
+*Reported to Claris, case 00918896 — [Bug Report (1 of 2): FileMaker Pro 2026 Print PDF page setup is unstable/inconsistent — the Clipboard XML of the same two saved steps disagrees with SaXML, the printed output, and the authored Landscape/Letter](https://community.claris.com/en/s/question/0D5Vy00002rqoRFKAY/bug-report-1-of-2-filemaker-pro-2026-print-pdf-page-setup-is-unstableinconsistent-clipboard-xml-serialization-of-the-same-two-saved-steps-disagree-with-saxml-and-printed-output-and-with-the-authored-landscapeletter).*
 
 ---
 
@@ -1107,7 +1175,7 @@ Two notes, one on each side of the round-trip, on all three page-setup steps. Th
 
 This one matters beyond print. The clipboard — the source ai2fm reads — is the one that came out right after a clean save, while FileMaker's own migration export did not. Reading the clipboard directly, and preserving its bytes, is what makes the difference here.
 
-*Reported to Claris — [Bug Report (2 of 2): FileMaker Pro 2026 — after a clean save the Clipboard XML is correct but SaXML and the printed output still mis-serialize one of two identical Print PDF steps (Portrait/A4 instead of the saved Landscape/Letter)](https://community.claris.com/en/s/question/0D5Vy00002rqw10KAA/bug-report-2-of-2-filemaker-pro-2026-after-a-clean-save-the-clipboard-xml-is-correct-but-saxml-and-the-printed-output-still-misserialize-one-of-two-identical-print-pdf-steps-portraita4-instead-of-the-saved-landscapeletter).*
+*Reported to Claris, case 00918897 — [Bug Report (2 of 2): FileMaker Pro 2026 — after a clean save the Clipboard XML is correct but SaXML and the printed output still mis-serialize one of two identical Print PDF steps (Portrait/A4 instead of the saved Landscape/Letter)](https://community.claris.com/en/s/question/0D5Vy00002rqw10KAA/bug-report-2-of-2-filemaker-pro-2026-after-a-clean-save-the-clipboard-xml-is-correct-but-saxml-and-the-printed-output-still-misserialize-one-of-two-identical-print-pdf-steps-portraita4-instead-of-the-saved-landscapeletter).*
 
 ---
 
@@ -1325,6 +1393,8 @@ The last bug on this page belongs with the filed ones — we reported it to Clar
 <a id="bug-18"></a>
 ### Bug 18 — Insert from Device (step 161) — the barcode types are named wrongly in SaXML, the DDR and the printout
 
+> **Update, 2026-10-06 — Claris is fixing it.** Claris told us the wrong barcode types in the Database Design Report (HTML and XML) and in Save a Copy as XML are fixed in the latest pre-release build of FileMaker Pro, for an upcoming update. Claris did not mention the printed script. We will check all three formats when the update is public.
+
 This one is different from everything above it. **The clipboard is right.** It is the three formats you would use to *read* a solution — the DDR, the printed script, and the SaXML that migration tooling consumes — that name the wrong barcode symbologies.
 
 We authored one step with three barcode types ticked: **Aztec, Data Matrix and GS1 DataBar Limited**. FileMaker stores that selection as a bitmask, and the clipboard records it exactly:
@@ -1377,7 +1447,7 @@ It only shows with a **partial** selection reaching past the eighth entry. Pick 
 
 **Present in FileMaker Pro 2025 and 2026, identically.** ai2fm reads the bitmask, so it reports the three types the developer actually chose.
 
-*Reported to Claris — [Bug Report: Insert from Device barcode types at SaXML, HTML DDR and printed output are named incorrectly in FileMaker Pro 2026 and 2025 — the same wrong three symbologies on both versions, while the Clipboard XML is correct](https://community.claris.com/en/s/question/0D5Vy00003BqpoDKAR/bug-report-insert-from-device-barcode-types-at-saxml-html-ddr-and-printed-output-are-named-incorrectly-in-filemaker-pro-2026-and-2025-the-same-wrong-three-symbologies-on-both-versions-while-the-clipboard-xml-is-correct)*
+*Reported to Claris, case 00930742 — [Bug Report: Insert from Device barcode types at SaXML, HTML DDR and printed output are named incorrectly in FileMaker Pro 2026 and 2025 — the same wrong three symbologies on both versions, while the Clipboard XML is correct](https://community.claris.com/en/s/question/0D5Vy00003BqpoDKAR/bug-report-insert-from-device-barcode-types-at-saxml-html-ddr-and-printed-output-are-named-incorrectly-in-filemaker-pro-2026-and-2025-the-same-wrong-three-symbologies-on-both-versions-while-the-clipboard-xml-is-correct)*
 
 ---
 
