@@ -47,6 +47,8 @@ We tested on **FileMaker Pro 26.0.1.51 and 26.0.2.212 installed side by side**, 
 | **[Bug 5](#bug-5)** — Perform RAG Action (219) | `<Field type="AddDataResponse">` is emitted again for (Async) add-data steps. Both the variable and the field form return. |
 | **[Bug 7](#bug-7)** — Configure Prompt Template (226) | `<ModelProvider>` carries `Google` again instead of being written empty. |
 
+**Update 2026-10-09 — [Bug 9](#bug-9) is resolved too, by WinSoft.** Starting with their 26.0.2 builds, the Middle East and Central European localized builds no longer ship the extra dictionaries. Set Dictionary offers only Claris's standard list. Details in the bug.
+
 For **Bugs 12 and 13** we re-ran the exact reproducer files we had submitted to Claris: they still reproduce **byte-for-byte** on 26.0.2.
 
 **If you are still on 26.0.1, nothing changes for you.** ai2fm keeps every warning and repair for both builds and picks the right behaviour from the shape of the clipboard it is given — there is no version marker in a FileMaker clipboard to switch on, so we detect the damage itself. A step copied on 26.0.1 is still warned about; the same step copied on 26.0.2 passes through clean.
@@ -67,7 +69,7 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 | 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | Still present | [#bug-6](#bug-6) |
 | 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | **Fixed** | [#bug-7](#bug-7) |
 | 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | Still present | [#bug-8](#bug-8) |
-| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | WinSoft build defect — Claris investigating | [#bug-9](#bug-9) |
+| 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | **Resolved by WinSoft** in 26.0.2 — the extra dictionaries were removed | [#bug-9](#bug-9) |
 | 10 | Execute SQL (117) | Two ways FileMaker 2026 breaks an ODBC connection | Still present | [#bug-10](#bug-10) |
 | 11 | Import Records ODBC (35) | The same two bugs, on your data imports | Still present | [#bug-11](#bug-11) |
 | 12 | Print PDF (242) | Page setup unstable — three serializations disagree | Still present | [#bug-12](#bug-12) |
@@ -763,6 +765,12 @@ That is the whole bug in two screenshots: **FileMaker displays a parameter it gi
 <a id="bug-9"></a>
 ## Bug 9 — Set Dictionary (step 209) — on WinSoft localized builds the spelling language becomes dialog text
 
+> **Update, 2026-10-09 — resolved by WinSoft, by removing the dictionaries.** WinSoft told us the issue is fixed starting with FileMaker Pro **26.0.2**. We tested their 26.0.2 builds. The **Middle East and Central European builds no longer ship the extra localized dictionaries**: Set Dictionary now offers only Claris's standard list, the same as the USA build. Every language a step can store now has a name in the string table.
+>
+> **Existing scripts:** a script made on an earlier ME build with one of the removed dictionaries chosen (Greek, Russian, Hebrew, Slovenian and the rest) opens on the 26.0.2 build with the language **empty**, `Set Dictionary [Spelling Language:]`. That is how such scripts always opened on the CE and USA builds. Choose one of the standard languages again.
+>
+> The section below describes the bug as it was before 26.0.2.
+
 **The bug.** This one is not Claris's. On the **WinSoft Middle East** localized build of FileMaker, a Set Dictionary step loses its spelling language the moment you copy, print, or export it. Copy and paste the step and every localized dictionary comes back as **UK English**. Print it or Save as XML and the language is replaced by **unrelated interface text** — `Expire password`, `Account Name:`, `Pages:`. The step in the file is fine; all three serializations read the same corrupted table.
 
 ### The files
@@ -816,7 +824,7 @@ The test file holds the same forty-two localized dictionary steps plus, on the l
 
 There is no clean format to recover from. The clipboard, the printed output and the Save-as-XML export all read the same table, so all three carry the same corruption. A tool cannot repair this from the outside, and neither can we: the correct language name simply does not exist anywhere in the build's resources. We build our Set Dictionary support from the official Claris build, where the table is correct, so the step ships clean.
 
-The fix belongs to WinSoft: add the missing value-to-name entries for the dictionaries they ship beyond the standard thirteen. The 1–13 table is already correct.
+What we asked WinSoft for was the missing value-to-name entries for the dictionaries they ship beyond the standard thirteen; the 1–13 table was already correct. WinSoft chose the other remedy in 26.0.2: they removed those dictionaries (see the update at the top of this bug).
 
 *Reported to **WinSoft** — ticket [rt2.winsoft.fr #1683], where WinSoft reproduced and confirmed all three failure modes on the ME build, with their own screenshots. **Claris is investigating too:** although this is a localized-build defect rather than their own, Claris forwarded the report to their Testing and Development teams (2026-08-06) to check whether anything in the version of FileMaker Pro they support needs correcting. Also posted to the Claris community so other users of the localized builds can find it: [Bug Report: WinSoft (ME/CE localized) FileMaker builds corrupt Set Dictionary's language on copy/print/SaXML](https://community.claris.com/en/s/question/0D5Vy00002uuapSKAQ/bug-report-winsoft-mece-localized-filemaker-builds-corrupt-set-dictionarys-language-on-copyprintsaxml).*
 
