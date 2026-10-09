@@ -36,21 +36,21 @@ The FileMaker files open in FileMaker Pro 2025 or 2026 as their names say. Nothi
 
 ## Status after FileMaker Pro 26.0.3 (Bugs 1–8, 16 and 17 re-verified)
 
-FileMaker Pro **26.0.3** (September 2026) lists two clipboard fixes in its release notes: Configure AI Account copied from FileMaker 2025 and pasted into 2026, and Print PDF losing its page setup on copy and paste. Claris also told us that a third, Configure Machine Learning Model copied from 2025 and pasted into 2026, is fixed; our test shows it is not (Bug 3). We re-captured **Bugs 1–8** on 26.0.3, on Windows, on 2026-09-24, and re-checked **Bugs 16 and 17** later.
+FileMaker Pro **26.0.3** (September 2026) lists two clipboard fixes in its release notes: Configure AI Account copied from FileMaker 2025 and pasted into 2026, and Print PDF losing its page setup on copy and paste. We re-captured **Bugs 1–8** on 26.0.3, on Windows, on 2026-09-24, and re-checked **Bugs 16 and 17** later.
 
 | Bug | On 26.0.3 |
 |---|---|
 | **[Bug 2](#bug-2)** — Configure AI Account (212) | **Fixed in one direction.** A step copied in FileMaker 2025 now pastes into 26.0.3 with every field. A step copied in 2026 still pastes into 2025 blank: 2025 does not know the corrected tag. |
-| **[Bug 3](#bug-3)** — Configure Machine Learning Model (202) | **Not fixed.** Still broken in both directions, 2025 into 26.0.3 and 26.0.3 into 2025, and fields are still dropped. Claris told us case 00917153 is fixed in 26.0.3; our test shows it is not. ai2fm repairs the step for either target. |
+| **[Bug 3](#bug-3)** — Configure Machine Learning Model (202) | <span style="color:#d1242f"><b>Still present</b></span>. Broken in both directions, 2025 into 26.0.3 and 26.0.3 into 2025, and fields are still dropped. ai2fm repairs the step for either target. |
 | **[Bug 5](#bug-5)**, **[Bug 7](#bug-7)** | Still fixed. |
-| **[Bug 1](#bug-1)**, **[Bug 4](#bug-4)**, **[Bug 6](#bug-6)**, **[Bug 8](#bug-8)** | Still present. |
-| **[Bug 16](#bug-16)** — Set Zoom Level (97), **[Bug 17](#bug-17)** — Re-Login (138) | Still present. A step copied in 26.0.3 still carries its 2026-only data into the FileMaker 2025 (22.0.7) clipboard. |
+| **[Bug 1](#bug-1)**, **[Bug 4](#bug-4)**, **[Bug 6](#bug-6)**, **[Bug 8](#bug-8)** | <span style="color:#d1242f"><b>Still present</b></span>. |
+| **[Bug 16](#bug-16)** — Set Zoom Level (97), **[Bug 17](#bug-17)** — Re-Login (138) | <span style="color:#d1242f"><b>Still present</b></span>. A step copied in 26.0.3 still carries its 2026-only data into the FileMaker 2025 (22.0.7) clipboard. |
 
 FileMaker 2025 is not being updated, so the direction **from 2026 into 2025** stays broken for Bug 2. Bug 3 is broken in both directions. ai2fm's **Target FileMaker Version** setting writes whichever form the destination needs, in both directions.
 
 **[Bug 10](#bug-10) and [Bug 11](#bug-11) are not something an update can fix.** In FileMaker 2026 the ODBC user name and password are **calculations**: a literal name is written in quotes, `"Admin"`, and an unquoted `Get ( AccountName )` is evaluated when the step runs. FileMaker 2025 and earlier store the same two boxes as **plain text**: `Admin`, no quotes. The quotes are not stray; they are how a 2026 calculation writes text. For a step to move between the versions unchanged, Claris would have to make the 2025-and-earlier boxes calculations too. ai2fm converts both ways with the **Target FileMaker Version** setting: a name gains its quotes for 2026 and loses them for 2025, a password that itself contains a quote included. A real calculation cannot become text in 2025, so ai2fm leaves it as it is and warns on the step.
 
-**[Bug 18](#bug-18) is being fixed.** On 2026-10-06 Claris told us the fix for the wrong barcode types is in the latest pre-release build of FileMaker Pro and will ship in an upcoming update.
+**[Bug 18](#bug-18) is still present.** On 2026-10-06 Claris told us a fix for the wrong barcode types is in a pre-release build of FileMaker Pro, for an upcoming update. It is not yet tested by ai2fm.
 
 **Not yet tested by ai2fm on 26.0.3:** Bugs 12–15. That includes **Bugs 12 and 13**, the Print PDF page setup that the 26.0.3 release notes name as fixed. Their status below is still the 26.0.2 one.
 
@@ -85,24 +85,24 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 
 | # | Step | Bug | Status on 26.0.2 | Status on 26.0.3 | Claris case | Link |
 |---|---|---|---|---|---|---|
-| 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | Still present | Still present | — | [#bug-1](#bug-1) |
-| 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | Still present | **Fixed 2025 → 2026**; 2026 → 2025 still blank | 00917117 | [#bug-2](#bug-2) |
-| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | Still present | **Still present** in both directions, though reported fixed | 00917153 | [#bug-3](#bug-3) |
-| 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | Still present | Still present | 00921415 | [#bug-4](#bug-4) |
+| 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span> | — | [#bug-1](#bug-1) |
+| 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | <span style="color:#d1242f"><b>Still present</b></span> | **Fixed 2025 → 2026**; 2026 → 2025 still blank | 00917117 | [#bug-2](#bug-2) |
+| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span> in both directions | 00917153 | [#bug-3](#bug-3) |
+| 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span> | 00921415 | [#bug-4](#bug-4) |
 | 5 | Perform RAG Action — Add Data (219) | Response Target dropped for (Async) sources | **Fixed** | **Fixed** | 00916818 | [#bug-5](#bug-5) |
-| 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | Still present | Still present | 00921417 | [#bug-6](#bug-6) |
+| 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span> | 00921417 | [#bug-6](#bug-6) |
 | 7 | Configure Prompt Template (226) | A Google step pastes back as OpenAI | **Fixed** | **Fixed** | — | [#bug-7](#bug-7) |
-| 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | Still present | Still present | 00920831 | [#bug-8](#bug-8) |
+| 8 | Refresh Portal (180) | A phantom parameter that exists, displays, cannot be set | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span> | 00920831 | [#bug-8](#bug-8) |
 | 9 | Set Dictionary (209) | On WinSoft builds the spelling language becomes dialog text | **Resolved by WinSoft** in 26.0.2 — the extra dictionaries were removed | — | 00920939 | [#bug-9](#bug-9) |
-| 10 | Execute SQL (117) | Save credentials flipped on; 2026 credentials are calculations, 2025 text | Still present | **Not fixable by an update** — 2026 credentials are calculations, 2025 and earlier store text | 00919882 | [#bug-10](#bug-10) |
-| 11 | Import Records ODBC (35) | The same two issues, on your data imports | Still present | **Not fixable by an update** — the same as Bug 10 | 00919882 | [#bug-11](#bug-11) |
-| 12 | Print PDF (242) | Page setup unstable — three serializations disagree | Still present | Not yet tested by ai2fm | 00918896 | [#bug-12](#bug-12) |
-| 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | Still present | Not yet tested by ai2fm | 00918897 | [#bug-13](#bug-13) |
-| 14 | Print Setup (42) | The same unstable page setup — we warn both ways | Still present | Not yet tested by ai2fm | — | [#bug-14](#bug-14) |
-| 15 | Print (43) | The same unstable page setup — we warn both ways | Still present | Not yet tested by ai2fm | — | [#bug-15](#bug-15) |
-| 16 | Set Zoom Level (97) | *Not filed* — 2026 Custom zoom leaks into the 2025 clipboard | Still present | Still present: copied from 26.0.3, pasted into 22.0.7 | — | [#bug-16](#bug-16) |
-| 17 | Re-Login (138) | *Not filed* — 2026 file reference leaks into the 2025 clipboard | Still present | Still present: copied from 26.0.3, pasted into 22.0.7 | — | [#bug-17](#bug-17) |
-| 18 | Insert from Device (161) | Barcode types misnamed in SaXML, DDR and printout — the Clipboard is correct | Still present | **Fixed in Claris's pre-release build** — in an upcoming update | 00930742 | [#bug-18](#bug-18) |
+| 10 | Execute SQL (117) | Save credentials flipped on; 2026 credentials are calculations, 2025 text | <span style="color:#d1242f"><b>Still present</b></span> | **Not fixable by an update** — 2026 credentials are calculations, 2025 and earlier store text | 00919882 | [#bug-10](#bug-10) |
+| 11 | Import Records ODBC (35) | The same two issues, on your data imports | <span style="color:#d1242f"><b>Still present</b></span> | **Not fixable by an update** — the same as Bug 10 | 00919882 | [#bug-11](#bug-11) |
+| 12 | Print PDF (242) | Page setup unstable — three serializations disagree | <span style="color:#d1242f"><b>Still present</b></span> | Not yet tested by ai2fm | 00918896 | [#bug-12](#bug-12) |
+| 13 | Print PDF (242), continued | Clean save fixes clipboard, but not SaXML / printout | <span style="color:#d1242f"><b>Still present</b></span> | Not yet tested by ai2fm | 00918897 | [#bug-13](#bug-13) |
+| 14 | Print Setup (42) | The same unstable page setup — we warn both ways | <span style="color:#d1242f"><b>Still present</b></span> | Not yet tested by ai2fm | — | [#bug-14](#bug-14) |
+| 15 | Print (43) | The same unstable page setup — we warn both ways | <span style="color:#d1242f"><b>Still present</b></span> | Not yet tested by ai2fm | — | [#bug-15](#bug-15) |
+| 16 | Set Zoom Level (97) | *Not filed* — 2026 Custom zoom leaks into the 2025 clipboard | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span>: copied from 26.0.3, pasted into 22.0.7 | — | [#bug-16](#bug-16) |
+| 17 | Re-Login (138) | *Not filed* — 2026 file reference leaks into the 2025 clipboard | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span>: copied from 26.0.3, pasted into 22.0.7 | — | [#bug-17](#bug-17) |
+| 18 | Insert from Device (161) | Barcode types misnamed in SaXML, DDR and printout — the Clipboard is correct | <span style="color:#d1242f"><b>Still present</b></span> | <span style="color:#d1242f"><b>Still present</b></span>. Claris says a fix is in a pre-release build; not yet tested by ai2fm | 00930742 | [#bug-18](#bug-18) |
 
 ---
 
@@ -304,7 +304,7 @@ FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in eithe
 <a id="bug-3"></a>
 ## Bug 3 — Configure Machine Learning Model (step 202) — the structure changed, and a bad paste becomes a different command
 
-> **Update, 2026-10-09 — not fixed in FileMaker Pro 26.0.3.** Claris told us case 00917153 is fixed in 26.0.3. We tested it: the step is still broken in both cross-version directions, 2025 into 26.0.3 and 26.0.3 into 2025, and fields are still dropped. ai2fm repairs the step for either target version.
+> **Update, 2026-10-09 — still present in FileMaker Pro 26.0.3.** We tested it: the step is still broken in both cross-version directions, 2025 into 26.0.3 and 26.0.3 into 2025, and fields are still dropped. ai2fm repairs the step for either target version.
 
 **The bug.** FileMaker 2025 and FileMaker 2026 write this step with different XML *structures*, and neither version's importer accepts the other's. Copy the step across versions and it does not error — it pastes a step that is quietly **wrong in two ways**: the **From** source field is dropped, and the **Operation** resets to `Unload`. A `Vision` model step becomes an `Unload` step. This is the most dangerous failure on this page, because the result looks like a perfectly valid command — just not the one you had.
 
@@ -1393,7 +1393,7 @@ The last bug on this page belongs with the filed ones — we reported it to Clar
 <a id="bug-18"></a>
 ### Bug 18 — Insert from Device (step 161) — the barcode types are named wrongly in SaXML, the DDR and the printout
 
-> **Update, 2026-10-06 — Claris is fixing it.** Claris told us the wrong barcode types in the Database Design Report (HTML and XML) and in Save a Copy as XML are fixed in the latest pre-release build of FileMaker Pro, for an upcoming update. Claris did not mention the printed script. We will check all three formats when the update is public.
+> **Update, 2026-10-06 — Claris says a fix is coming. Not yet tested by ai2fm.** Claris told us the wrong barcode types in the Database Design Report (HTML and XML) and in Save a Copy as XML are fixed in the latest pre-release build of FileMaker Pro, for an upcoming update. Claris did not mention the printed script. We will check all three formats when the update is public.
 
 This one is different from everything above it. **The clipboard is right.** It is the three formats you would use to *read* a solution — the DDR, the printed script, and the SaXML that migration tooling consumes — that name the wrong barcode symbologies.
 
