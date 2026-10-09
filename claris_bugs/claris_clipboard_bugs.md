@@ -36,17 +36,17 @@ The FileMaker files open in FileMaker Pro 2025 or 2026 as their names say. Nothi
 
 ## Status after FileMaker Pro 26.0.3 (Bugs 1–8, 16 and 17 re-verified)
 
-FileMaker Pro **26.0.3** (September 2026) lists two clipboard fixes in its release notes: Configure AI Account copied from FileMaker 2025 and pasted into 2026, and Print PDF losing its page setup on copy and paste. Claris also told us that a third, Configure Machine Learning Model copied from 2025 and pasted into 2026, is fixed. We re-captured **Bugs 1–8** on 26.0.3, on Windows, on 2026-09-24, and re-checked **Bugs 16 and 17** later.
+FileMaker Pro **26.0.3** (September 2026) lists two clipboard fixes in its release notes: Configure AI Account copied from FileMaker 2025 and pasted into 2026, and Print PDF losing its page setup on copy and paste. Claris also told us that a third, Configure Machine Learning Model copied from 2025 and pasted into 2026, is fixed; our test shows it is not (Bug 3). We re-captured **Bugs 1–8** on 26.0.3, on Windows, on 2026-09-24, and re-checked **Bugs 16 and 17** later.
 
 | Bug | On 26.0.3 |
 |---|---|
 | **[Bug 2](#bug-2)** — Configure AI Account (212) | **Fixed in one direction.** A step copied in FileMaker 2025 now pastes into 26.0.3 with every field. A step copied in 2026 still pastes into 2025 blank: 2025 does not know the corrected tag. |
-| **[Bug 3](#bug-3)** — Configure Machine Learning Model (202) | A step copied in 2026 still pastes into 2025 wrong. Claris reports the other direction, 2025 into 2026, fixed; that direction is not yet tested by ai2fm. |
+| **[Bug 3](#bug-3)** — Configure Machine Learning Model (202) | **Not fixed.** Still broken in both directions, 2025 into 26.0.3 and 26.0.3 into 2025, and fields are still dropped. Claris told us case 00917153 is fixed in 26.0.3; our test shows it is not. ai2fm repairs the step for either target. |
 | **[Bug 5](#bug-5)**, **[Bug 7](#bug-7)** | Still fixed. |
 | **[Bug 1](#bug-1)**, **[Bug 4](#bug-4)**, **[Bug 6](#bug-6)**, **[Bug 8](#bug-8)** | Still present. |
 | **[Bug 16](#bug-16)** — Set Zoom Level (97), **[Bug 17](#bug-17)** — Re-Login (138) | Still present. A step copied in 26.0.3 still carries its 2026-only data into the FileMaker 2025 (22.0.7) clipboard. |
 
-FileMaker 2025 is not being updated, so the direction **from 2026 into 2025** stays broken for Bugs 2 and 3. ai2fm's **Target FileMaker Version** setting writes whichever form the destination needs, in both directions.
+FileMaker 2025 is not being updated, so the direction **from 2026 into 2025** stays broken for Bug 2. Bug 3 is broken in both directions. ai2fm's **Target FileMaker Version** setting writes whichever form the destination needs, in both directions.
 
 **[Bug 10](#bug-10) and [Bug 11](#bug-11) are not something an update can fix.** In FileMaker 2026 the ODBC user name and password are **calculations**: a literal name is written in quotes, `"Admin"`, and an unquoted `Get ( AccountName )` is evaluated when the step runs. FileMaker 2025 and earlier store the same two boxes as **plain text**: `Admin`, no quotes. The quotes are not stray; they are how a 2026 calculation writes text. For a step to move between the versions unchanged, Claris would have to make the 2025-and-earlier boxes calculations too. ai2fm converts both ways with the **Target FileMaker Version** setting: a name gains its quotes for 2026 and loses them for 2025, a password that itself contains a quote included. A real calculation cannot become text in 2025, so ai2fm leaves it as it is and warns on the step.
 
@@ -87,7 +87,7 @@ Each bug below has a stable anchor. Our FileMaker reproducer files link straight
 |---|---|---|---|---|---|---|
 | 1 | Perform Find by Natural Language (221) | Prompt Template Name dropped in 2025 | Still present | Still present | — | [#bug-1](#bug-1) |
 | 2 | Configure AI Account (212) | XML tag renamed — versions can't share a step | Still present | **Fixed 2025 → 2026**; 2026 → 2025 still blank | 00917117 | [#bug-2](#bug-2) |
-| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | Still present | 2026 → 2025 still fails; 2025 → 2026 reported fixed, not yet tested by ai2fm | 00917153 | [#bug-3](#bug-3) |
+| 3 | Configure Machine Learning Model (202) | Structure changed — a bad paste becomes a different command | Still present | **Still present** in both directions, though reported fixed | 00917153 | [#bug-3](#bug-3) |
 | 4 | Set Data File Position (195) | New position value dropped on copy in 2026 | Still present | Still present | 00921415 | [#bug-4](#bug-4) |
 | 5 | Perform RAG Action — Add Data (219) | Response Target dropped for (Async) sources | **Fixed** | **Fixed** | 00916818 | [#bug-5](#bug-5) |
 | 6 | Read from Data File (193) | Amount dropped on copy; two scripts look identical in 2025 | Still present | Still present | 00921417 | [#bug-6](#bug-6) |
@@ -304,7 +304,7 @@ FileMaker 2025 and 2026 cannot exchange a Configure AI Account step — in eithe
 <a id="bug-3"></a>
 ## Bug 3 — Configure Machine Learning Model (step 202) — the structure changed, and a bad paste becomes a different command
 
-> **Update, 2026-09-24 — on FileMaker Pro 26.0.3, a step copied in 2026 still pastes into FileMaker 2025 wrong.** Claris tells us the other direction, a step copied in 2025 and pasted into 2026, is fixed in 26.0.3. That direction is not yet tested by ai2fm. ai2fm repairs the step in both directions.
+> **Update, 2026-10-09 — not fixed in FileMaker Pro 26.0.3.** Claris told us case 00917153 is fixed in 26.0.3. We tested it: the step is still broken in both cross-version directions, 2025 into 26.0.3 and 26.0.3 into 2025, and fields are still dropped. ai2fm repairs the step for either target version.
 
 **The bug.** FileMaker 2025 and FileMaker 2026 write this step with different XML *structures*, and neither version's importer accepts the other's. Copy the step across versions and it does not error — it pastes a step that is quietly **wrong in two ways**: the **From** source field is dropped, and the **Operation** resets to `Unload`. A `Vision` model step becomes an `Unload` step. This is the most dangerous failure on this page, because the result looks like a perfectly valid command — just not the one you had.
 
