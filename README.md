@@ -29,6 +29,12 @@ Russell Watson's [fmIDE](https://github.com/fmIDE/fmIDE) main script, with its 8
 
 ➡️ **[See the fmIDE benchmark](benchmarks/fmIDE/README.md)**
 
+### 🧾 Try it: one complete step, free to read
+
+**Execute SQL**, in full: the step's `.fmscript` syntax and every parameter, fourteen tested examples (a complete create, read, update and delete set), and the FileMaker files they come from. Every example opens as a coloured page.
+
+➡️ **[See the Execute SQL step](https://axelareu.github.io/ai2fm-community/fmscript-standard/execute-sql/execute-sql.html)**  ·  [source on GitHub](fmscript-standard/execute-sql/)
+
 ---
 
 ## ⚡ The Workflow (Vibe Coding)
@@ -67,10 +73,12 @@ The server-side round trip between FileMaker XML and readable script text.
 
 | Windows | macOS | Action |
 | :--- | :--- | :--- |
-| **`Ctrl+Alt+G`** | **`Cmd+Opt+G`** | Read FM clipboard into editor (raw XML) |
-| **`Ctrl+Alt+V`** | **`Cmd+Opt+V`** | Copy editor XML as XMSS to FM clipboard |
-| **`Ctrl+Alt+T`** | **`Cmd+Opt+T`** | **FM → Text:** clipboard XML to readable script |
-| **`Ctrl+Alt+F`** | **`Cmd+Opt+F`** | **Text → FM:** validate text, rebuild FM clipboard |
+| **`Ctrl+Alt+T`** | **`Cmd+Opt+T`** | **FM → Text:** the FileMaker clipboard as a readable script, in a new file named after the script |
+| **`Ctrl+Alt+I`** | **`Cmd+Opt+I`** | **FM → Text at the cursor:** insert the FileMaker clipboard into the `.fmscript` you are in |
+| **`Ctrl+Alt+F`** | **`Cmd+Opt+F`** | **Text → FM:** check the script, then put it on the FileMaker clipboard, ready to paste |
+| **`Ctrl+Alt+Q`** | **`Cmd+Opt+Q`** | **Auto-convert:** the editor, or the selection, from XML to `.fmscript` or back, opened beside it; the clipboard is not touched |
+| **`Ctrl+Alt+G`** | **`Cmd+Opt+G`** | **Read the FileMaker clipboard** into the editor as raw XML |
+| **`Ctrl+Alt+V`** | **`Cmd+Opt+V`** | **Copy XML** from the editor to the FileMaker clipboard as script steps (XMSS) |
 
 ---
 
@@ -86,14 +94,11 @@ The XSLT transform runs server-side, but payloads move over TLS, are processed e
 
 ## 💳 Licensing
 
-v2.5 and later have no permanent free tier. v2.4 is no longer offered for new downloads; existing installations are
-not disabled by this change.
+v2.5 and later have no permanent free tier. v2.4 is no longer offered for new downloads; existing installations are not disabled by this change.
 
-* **21-Day Demo:** the complete extension at no cost for 21 days. No credit card required. Registration and machine
-  activation are required. After expiry, the extension's active features are locked until a valid licence is entered.
+* **21-Day Demo:** the complete extension at no cost for 21 days. No credit card required. Registration and machine activation are required. After expiry, the extension's active features are locked until a valid licence is entered.
   The paid Agent Pack is not included in the demo.
-* **Professional Seat — $120 / yr:** the activated extension, the FileMaker round trip and the paid Agent Pack
-  (standard pages, examples and supporting FileMaker files).
+* **Professional Seat — $120 / yr:** the activated extension, the FileMaker round trip and the paid Agent Pack (standard pages, examples and supporting FileMaker files).
 
 ➡️ **[Start the 21-day demo or buy a licence at ai2fm.com](https://ai2fm.com/)**
 
@@ -105,8 +110,7 @@ not disabled by this change.
 2. Open your preferred editor (VS Code, Cursor, Devin, Antigravity, Kiro, VSCodium, Trae or Qoder).
 3. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac) and run: **`Extensions: Install from VSIX…`**
 4. Select the `.vsix` file.
-5. Click the **ai2fm icon** in the left-hand bar, then **Enter License Key**. The key is in your demo or purchase
-   email; entering it activates this computer.
+5. Click the **ai2fm icon** in the left-hand bar, then **Enter License Key**. The key is in your demo or purchase email; entering it activates this computer.
 
 ---
 
