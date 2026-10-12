@@ -12,3 +12,8 @@ relative_links:
 include:
   - claris_bugs
   - claris_bugs/Bugs_Test_Suite.zip
+defaults:
+  - scope:
+      path: "fmscript-standard"
+    values:
+      layout: "standard"

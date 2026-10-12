@@ -1,0 +1,54 @@
+---
+title: "Execute_SQL_Example_9"
+---
+
+# Execute_SQL_Example_9
+
+[← Execute SQL](execute-sql.html) · <a href="Execute_SQL_Example_9.fmscript" download>Download Execute_SQL_Example_9.fmscript</a>
+
+```fmscript
+# ============================================
+# Execute SQL — Example 9. READ — select one record into a variable and display it.
+# Captured from: Execute_SQL_Example_2026_v1_0.fmp12
+# ============================================
+
+# 🔑 ExecuteSQL IS A CALCULATION FUNCTION, NOT THE EXECUTE SQL SCRIPT STEP. It reads tables
+# in the current FileMaker file and returns text without changing the current record, found set,
+# or layout.
+#
+# ℹ️ The question mark in the SQL is a parameter placeholder. The final argument, 1, supplies
+# its value without concatenating data into the query text.
+#
+# 🔑 " | " separates fields. ¶ separates rows. This query returns one row, so the result is:
+# Aster Systems GmbH | 18 Friedrichstrasse | 10117
+# ============================================
+
+Set Variable [ $customerContact[1] ; Value: ExecuteSQL (
+    "SELECT \"Company\", \"Street\", \"Zip\"
+     FROM \"CustomerContactsSQL\"
+     WHERE \"__pkCustomerContactID\" = ?" ;
+    " | " ; ¶ ;
+    1
+) ]
+
+If [ $customerContact = "?" ]
+
+    Show Custom Dialog [
+        Title: "SQL Query Error";
+        Message: "ExecuteSQL returned ?. Check the table, field names, and query syntax.";
+        Default Button: "OK", Commit: "No"
+    ]
+
+    Exit Script [ Result: -1 ]
+
+Else
+
+    Show Custom Dialog [
+        Title: "Customer Contact 1";
+        Message: $customerContact;
+        Default Button: "OK", Commit: "Yes"
+    ]
+
+    Exit Script [ Result: $customerContact ]
+End If
+```
