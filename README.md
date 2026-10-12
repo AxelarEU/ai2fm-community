@@ -98,7 +98,7 @@ v2.5 and later have no permanent free tier. v2.4 is no longer offered for new do
 
 * **21-Day Demo:** the complete extension at no cost for 21 days. No credit card required. Registration and machine activation are required. After expiry, the extension's active features are locked until a valid licence is entered.
   The paid Agent Pack is not included in the demo.
-* **Professional Seat — \$120 / yr:** the activated extension, the FileMaker round trip and the $`\color{#0969DA}\textbf{ai2fm Agent Pack, the ai2fm Corpus for AI Agents}`$.
+* For a limited time, **Professional Seat — \$120 / yr:** the activated extension, the FileMaker round trip and the $`\color{#0969DA}\textbf{ai2fm Agent Pack, the ai2fm Corpus for AI Agents}`$.
 
 ➡️ **[Start the 21-day demo or buy a licence at ai2fm.com](https://ai2fm.com/)**
 
