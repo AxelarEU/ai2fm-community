@@ -44,17 +44,17 @@ Turn hours of manual XML reconstruction into seconds. Because scripts live as te
 
 ## 🛠️ Features
 
-`ai2fm` operates on two layers: a free local IDE extension and a licensed server-side XSLT pipeline.
+One activated extension: the IDE tools and the FileMaker round trip.
 
-### Free — Full FileMaker IDE (Local)
-Turns any VS Code fork (Cursor, Windsurf, Antigravity, Kiro, VSCodium) into a native FileMaker environment.
+### FileMaker IDE Tools
+Turns VS Code-compatible editors (VS Code, Cursor, Devin, Antigravity, Kiro, VSCodium, Trae, Qoder) into a FileMaker environment.
 * **Autocomplete & Autoformat:** Native support for `.fmscript`, including instant `If` and `Loop` templates.
 * **Live Validation:** Squiggles and Problems-panel updates as you type to prevent broken XML pastes.
 * **Hover Docs:** Step documentation directly from the local FileMaker KB.
-* **Clipboard I/O:** Copy XML from the editor to the FM clipboard (XMSS, XMFN, XMFD, XMTB, XMLO) or read the FM clipboard into the editor.
+* **Clipboard I/O:** Copy XML from the editor to the FM clipboard (XMSS, XMFN, XMFD, XMTB, XML2) or read the FM clipboard into the editor.
 
-### Licensed — XSLT Transform Pipeline (Server-Side)
-The engine that powers the seamless round trip.
+### FileMaker Round Trip (Server-Side)
+The server-side round trip between FileMaker XML and readable script text.
 * **Bidirectional Translation:** FM → Text and Text → FM.
 * **Complete Coverage:** Supports all 214+ FileMaker script steps.
 * **AI Guardrails:** Hallucination detection and multi-line step handling via a bracket-depth parser.
@@ -65,14 +65,12 @@ The engine that powers the seamless round trip.
 
 ## ⌨️ Quick Shortcuts
 
-| Shortcut | Action | Tier |
+| Windows | macOS | Action |
 | :--- | :--- | :--- |
-| **`Ctrl+Alt+G`** | Read FM clipboard into editor (raw XML) | Free |
-| **`Ctrl+Alt+V`** | Copy editor XML as XMSS to FM clipboard | Free |
-| **`Ctrl+Alt+T`** | **FM → Text:** clipboard XML to readable script | Licensed |
-| **`Ctrl+Alt+F`** | **Text → FM:** validate text, rebuild FM clipboard | Licensed |
-
-*(On macOS, substitute `Cmd` for `Ctrl` where your IDE binds it that way).*
+| **`Ctrl+Alt+G`** | **`Cmd+Opt+G`** | Read FM clipboard into editor (raw XML) |
+| **`Ctrl+Alt+V`** | **`Cmd+Opt+V`** | Copy editor XML as XMSS to FM clipboard |
+| **`Ctrl+Alt+T`** | **`Cmd+Opt+T`** | **FM → Text:** clipboard XML to readable script |
+| **`Ctrl+Alt+F`** | **`Cmd+Opt+F`** | **Text → FM:** validate text, rebuild FM clipboard |
 
 ---
 
@@ -86,13 +84,29 @@ The XSLT transform runs server-side, but payloads move over TLS, are processed e
 
 ---
 
+## 💳 Licensing
+
+v2.5 and later have no permanent free tier. v2.4 is no longer offered for new downloads; existing installations are
+not disabled by this change.
+
+* **21-Day Demo:** the complete extension at no cost for 21 days. No credit card required. Registration and machine
+  activation are required. After expiry, the extension's active features are locked until a valid licence is entered.
+  The paid Agent Pack is not included in the demo.
+* **Professional Seat — $120 / yr:** the activated extension, the FileMaker round trip and the paid Agent Pack
+  (standard pages, examples and supporting FileMaker files).
+
+➡️ **[Start the 21-day demo or buy a licence at ai2fm.com](https://ai2fm.com/)**
+
+---
+
 ## 📥 Installation
 
-1. Download the latest `.vsix` extension file from [ai2fm.com](https://ai2fm.com/).
-2. Open your preferred editor (VS Code, Cursor, Windsurf, etc.).
+1. Register at [ai2fm.com](https://ai2fm.com/) and download the `.vsix` extension file.
+2. Open your preferred editor (VS Code, Cursor, Devin, Antigravity, Kiro, VSCodium, Trae or Qoder).
 3. Press `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac) and run: **`Extensions: Install from VSIX…`**
-4. Select the unzipped `fm-clipboard-2.xx.0.vsix` file.
-5. Run **`FM Clipboard: Enter License Key`** to activate your 21-day Free or Professional seat.
+4. Select the `.vsix` file.
+5. Click the **ai2fm icon** in the left-hand bar, then **Enter License Key**. The key is in your demo or purchase
+   email; entering it activates this computer.
 
 ---
 
