@@ -29,9 +29,9 @@ Russell Watson's [fmIDE](https://github.com/fmIDE/fmIDE) main script, with its 8
 
 ➡️ **[See the fmIDE benchmark](benchmarks/fmIDE/README.md)**
 
-### 🧾 Try it: one complete step, free to read
+### 🧾 A free sample of the ai2fm Agent Pack
 
-**Execute SQL**, in full: the step's `.fmscript` syntax and every parameter, fourteen tested examples (a complete create, read, update and delete set), and the FileMaker files they come from. Every example opens as a coloured page.
+**Execute SQL** is one complete page from the $`\color{#0969DA}\textbf{ai2fm Agent Pack, the ai2fm Corpus for AI Agents}`$, free to read, so you can see the quality of what the full product includes: the step's `.fmscript` syntax and every parameter, fourteen tested examples (a complete create, read, update and delete set), and the FileMaker files they come from. Every example opens as a coloured page.
 
 ➡️ **[See the Execute SQL step](https://axelareu.github.io/ai2fm-community/fmscript-standard/execute-sql/execute-sql.html)**  ·  [source on GitHub](fmscript-standard/execute-sql/)
 
