@@ -1,0 +1,75 @@
+# ============================================
+# Execute SQL - Example 11. CALCULATED UPDATE - FileMaker values build the SQL statement.
+# Verification target: Execute_SQL_Example_2026_v1_0.fmp12 and the gemini MariaDB database.
+# ============================================
+
+# 🔑 THE PAIR TO EXAMPLE 10. It updates the record Example 10 inserted, found by the email that
+# script kept in $$calculatedSqlEmail — a global variable, so it survives between the two scripts.
+# ============================================
+
+# Run Example 10 first. Its global email identifies the record this script updates.
+If [ IsEmpty ( $$calculatedSqlEmail ) ]
+
+    Show Custom Dialog [
+        Title: "Calculated SQL UPDATE";
+        Message: "Run Execute SQL Example 10 first.";
+        Default Button: "OK", Commit: "No"
+    ]
+
+    Exit Script [ Result: -1 ]
+End If
+
+Set Variable [ $newLastName[1] ; Value: "O'Connor-Smith" ]
+Set Variable [ $newCity[1] ; Value: "Athens" ]
+
+Set Error Capture [ On ]
+
+# Every text value is escaped before it is concatenated into the SQL statement.
+#
+# 🚨 THE WHERE CLAUSE IS WHAT LIMITS IT. Without it, every row in `persons` would be updated.
+Execute SQL [
+    With dialog: Off;
+    ODBC Data Source: gemini;
+    User Name: "ai2fm_example";
+    Password: "ai2fm-demo-only";
+    Save credentials: On;
+    Calculated SQL Text:
+        Let ( [
+            sqlLastName = Substitute ( $newLastName ; "'" ; "''" ) ;
+            sqlCity = Substitute ( $newCity ; "'" ; "''" ) ;
+            sqlEmail = Substitute ( $$calculatedSqlEmail ; "'" ; "''" )
+        ] ;
+            "UPDATE persons SET last_name = '" &
+            sqlLastName & "', city = '" &
+            sqlCity & "' WHERE email = '" &
+            sqlEmail & "'"
+        )
+    ]
+
+Set Variable [ $errorSet[1] ; Value: Let ( [
+    $error = Get ( LastError ) ;
+    $errorDetail = Get ( LastErrorDetail )
+] ;
+    $noError
+) ]
+
+If [ $error = 0 ]
+
+    Show Custom Dialog [
+        Title: "Calculated SQL UPDATE";
+        Message: "The MariaDB record was updated successfully." & ¶ & $$calculatedSqlEmail;
+        Default Button: "OK", Commit: "Yes"
+    ]
+
+    Exit Script [ Result: $$calculatedSqlEmail ]
+
+Else
+
+    Show Custom Dialog [
+        Title: "Error: " & $error;
+        Message: "Error: " & $error & ¶ & error.Text ( $error ) & ¶ & $errorDetail;
+        Default Button: "OK", Commit: "No"
+    ]
+
+    Exit Script [ Result: -1 ]
+End If

@@ -1,0 +1,80 @@
+# ============================================
+# Execute SQL - Example 10. CALCULATED INSERT - FileMaker values build the SQL statement.
+# Verification target: Execute_SQL_Example_2026_v1_0.fmp12 and the gemini MariaDB database.
+# ============================================
+
+# 🔑 THE DATA SOURCE IS AN EXTERNAL DATABASE. `gemini` is a DSN for MariaDB, not for this
+# file. Build it with fixtures/gemini_mariadb_fixture.sql, which creates the `persons` table and
+# a local demonstration account.
+
+# ⚠️ THAT ACCOUNT CAN SELECT, INSERT AND UPDATE `persons` — NOTHING ELSE. It cannot delete a row
+# or change the schema, so Examples 10 and 11 insert and update, and stop there.
+
+# ℹ️ MariaDB names need no quotes here. `persons`, `first_name` begin with a letter; FileMaker's
+# `__pk…` fields in Examples 1-9 did not, which is why those were quoted.
+# ============================================
+
+# The global email identifies this run. Example 11 uses it to update exactly this record.
+Set Variable [
+    $$calculatedSqlEmail[1];
+    Value: "calculated.sql." & Lower ( Get ( UUID ) ) & "@example.test"
+]
+Set Variable [ $firstName[1] ; Value: "Codex" ]
+Set Variable [ $lastName[1] ; Value: "O'Connor" ]
+
+Set Error Capture [ On ]
+
+# Calculated SQL Text is a FileMaker calculation whose result is the SQL sent to MariaDB.
+# Substitute doubles SQL apostrophes: O'Connor becomes O''Connor inside the statement.
+#
+# 🚨 THE ESCAPING IS NOT OPTIONAL. The step has no parameters, so every value goes into the SQL
+# text as it is. An unescaped O'Connor ends the SQL string at the apostrophe and the statement
+# fails — or, with the wrong value, does something else.
+#
+# 🔑 TWO KINDS OF QUOTE. The double quotes are FileMaker's: they delimit the text pieces of the
+# calculation. The single quotes inside them are SQL's: they end up around each value.
+#
+# ℹ️ THE EMAIL IS UNIQUE PER RUN. `email` is a UNIQUE KEY in `persons`, so a fixed address would
+# fail on the second run; Get ( UUID ) makes each one new.
+Execute SQL [
+    With dialog: Off;
+    ODBC Data Source: gemini;
+    User Name: "ai2fm_example";
+    Password: "ai2fm-demo-only";
+    Save credentials: On;
+    Calculated SQL Text:
+        Let ( [
+            sqlFirstName = Substitute ( $firstName ; "'" ; "''" ) ;
+            sqlLastName = Substitute ( $lastName ; "'" ; "''" ) ;
+            sqlEmail = Substitute ( $$calculatedSqlEmail ; "'" ; "''" )
+        ] ;
+            "INSERT INTO persons (first_name, last_name, email) VALUES ('" &
+            sqlFirstName & "', '" &
+            sqlLastName & "', '" &
+            sqlEmail & "')"
+        )
+    ]
+
+Set Variable [ $errorSet[1] ; Value: Let ( [
+    $error = Get ( LastError ) ;
+    $errorDetail = Get ( LastErrorDetail )
+] ;
+    $noError
+) ]
+
+If [ $error = 0 ]
+
+    Show Custom Dialog [
+       Title: "Calculated SQL INSERT";
+       Message: "The MariaDB record was inserted successfully." & ¶ & $$calculatedSqlEmail;
+       Default Button: "OK", Commit: "Yes"
+   ]
+
+    Exit Script [ Result: $$calculatedSqlEmail ]
+
+Else
+
+    Show Custom Dialog [ Title: "Error: " & $error ; Message: "Error: " & $error & ¶ & error.Text ( $error ) & ¶ & $errorDetail ; Default Button: "OK", Commit: "No" ]
+
+    Exit Script [ Result: -1 ]
+End If

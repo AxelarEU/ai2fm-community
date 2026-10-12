@@ -1,0 +1,84 @@
+/*
+====================================================================
+CustomErrorMessage ( errorCode ; dynamicValue )
+====================================================================
+
+▸ VERSION     : 1.0
+▸ AUTHOR      : Dimitris Kokoutsidis
+▸ CREATED     : May 5, 2025
+▸ MODIFIED    : May 5, 2025
+▸ STATUS      : FINALIZED — centralized error messaging for CRUD transactions
+▸ LICENSE     : Open Source
+▸ PUBLISHED   : https://www.briandunning.com/cf/2875
+▸ PURPOSE     : Returns a readable and contextual error message for a given custom error code
+
+====================================================================
+DESCRIPTION:
+
+This function maps internal error codes to clear, diagnostic messages.
+Used primarily in server-side transactional stacks (Create, Update, Delete)
+to enrich error payloads returned to clients or logged in Errors table.
+
+▪ Supports dynamic values for embedding PrimaryKeys or FieldNames
+▪ Ensures consistency in error reporting across modules
+▪ Used in conjunction with `error.Text()` for native code explanations
+
+====================================================================
+PARAMETERS:
+
+errorCode     : Required — internal custom error code (≥ 5000)
+dynamicValue  : Required — context (PrimaryKey, field name, SQL string, etc.)
+
+====================================================================
+RETURNS:
+
+• Readable error message as Text
+• Injects dynamicValue where applicable (e.g., "Record with ID 123 not found.")
+• Fallback message: "Unknown validation error" if code is unrecognized
+
+====================================================================
+EXAMPLES:
+
+CustomErrorMessage ( 5011 ; "abc123" )
+// Returns → "Record with ID abc123 not found."
+
+CustomErrorMessage ( 5013 ; "invoiceTotal" )
+// Returns → "invoiceTotal field could not be set"
+
+====================================================================
+*/
+
+
+Let ( [
+  _msg = Case(
+    errorCode = 5001 ; "User entered invalid data" ;
+    errorCode = 5002 ; "User entered empty value" ;
+    errorCode = 5003 ; "User entered invalid data or empty value" ;
+    errorCode = 5004 ; "User input data must be numeric" ;
+    errorCode = 5005 ; "User input data had Invalid format" ;
+    errorCode = 5006 ; "Could not navigate to layout." ;
+    errorCode = 5007 ; "Could not create a new record." ;
+    errorCode = 5008 ; "Failed to refresh trigger field." ;
+    errorCode = 5009 ; "Failed to Commit Transaction." ;
+    errorCode = 5010 ; "Record not found." ;
+    errorCode = 5011 ; "Record with ID " & dynamicValue & " not found." ;
+    errorCode = 5012 ; "Record not found with ID: " ;
+    errorCode = 5013 ; dynamicValue & " field could not be set" ;
+    errorCode = 5014 ; dynamicValue & " field could not be updated" ;
+    errorCode = 5015 ; dynamicValue & " field could not be deleted" ;
+    errorCode = 5016 ; "Failed to delete record with ID: " ;
+    errorCode = 5017 ; "SQL syntax error while reading data.";
+    errorCode = 5018 ; "SQL syntax error: " & dynamicValue;
+    errorCode = 5019 ; "Failed to move to next record." ;
+    errorCode = 5020 ; "Delete aborted: No record selected." ;
+    errorCode = 5021 ; "Failed to insert record via SQL." ;
+    errorCode = 5022 ; "Failed to retrieve UUID from inserted record: " & dynamicValue ;
+    errorCode = 5023 ; "Failed to update record via SQL." ;
+    errorCode = 5024 ; "Failed to update record with UUID: " & dynamicValue ;
+    errorCode = 5025 ; "Transaction commit failed at: " & dynamicValue ;
+    errorCode = 5026 ; "Failed to SELECT records from UUID: " & dynamicValue ;
+    errorCode = 5027 ; "Failed to delete record via SQL." ;
+    errorCode = 5499 ; "Unspecified validation error" ;
+    "Unknown validation error"
+  )
+] ; _msg )

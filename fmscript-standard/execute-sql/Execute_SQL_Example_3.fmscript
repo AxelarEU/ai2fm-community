@@ -1,0 +1,74 @@
+# ============================================
+# Execute SQL — Example 3. UPDATE — one record, found by its key.
+# Captured from: Execute_SQL_Example_2026_v1_0.fmp12
+# ============================================
+
+# 🚨 THE WHERE CLAUSE IS WHAT LIMITS IT. `WHERE "__pkCustomerContactID" = 1` changes one record;
+# without it, the same SET is applied to every record in the table.
+# ============================================
+
+Enter Browse Mode [ Pause: Off ]
+
+# ⚠️ With error capture on, FileMaker shows no alert of its own. Every dialog below is the
+# script's own, built from the two error values captured after the step.
+Set Error Capture [ On ]
+
+# 🔑 odbcSelf2026 IS A SYSTEM DSN THAT POINTS BACK AT THIS FILE, through FileMaker's own 26.0.3
+# ODBC driver. Execute SQL talks to ODBC data sources, not to FileMaker files — so the file
+# reaches itself as one.
+#
+# ⚠️ `With dialog: Off` NEEDS `Save credentials: On`. Nothing can prompt for a user name or
+# password, so the credentials have to be stored with the step.
+#
+# 🔑 BOTH CREDENTIALS ARE QUOTED — "Admin", "admin". User Name and Password are CALCULATIONS,
+# so a literal value is a quoted string.
+Execute SQL [
+    With dialog: Off;
+    ODBC Data Source: odbcSelf2026;
+    User Name: "Admin";
+    Password: "admin";
+    Save credentials: On;
+    SQL Text:
+        UPDATE "CustomerContactsSQL"
+        SET "Company" = 'Aster Systems GmbH',
+        "Street" = '18 Friedrichstrasse',
+        "City" = 'Berlin',
+        "State" = 'BE',
+        "Zip" = '10117'
+        WHERE "__pkCustomerContactID" = 1
+    ]
+# ------------------------------------------------------
+# Check for errors and log if needed
+# ------------------------------------------------------
+# 🔑 BOTH ERROR VALUES, CAPTURED IN ONE STEP. Get ( LastError ) is FileMaker's code;
+# Get ( LastErrorDetail ) is the ODBC state — the driver's own reason, which the code alone does
+# not give. Reading both inside one Let means the second read cannot see a reset value.
+#
+# ℹ️ $noError is never set. The Let's result is thrown away; only its two assignments matter.
+Set Variable [ $errorSet[1] ; Value: Let( [
+$error = Get(LastError) ;
+$errorDetail = Get( LastErrorDetail )
+] ;
+$noError
+) ]
+
+If [ $error = 0 ]
+
+    Show Custom Dialog [
+        Title: "SQL Action Status";
+        Message: "Customer contact 1 updated successfully.";
+        Default Button: "OK", Commit: "Yes"
+    ]
+
+    Exit Script [ Result: 0 ]
+
+Else
+
+    Show Custom Dialog [
+        Title: "Error: " & $error;
+        Message: "Error: " & $error & ¶ & error.Text ( $error ) & ¶ & $errorDetail;
+        Default Button: "OK", Commit: "No"
+    ]
+
+    Exit Script [ Result: -1 ]
+End If
